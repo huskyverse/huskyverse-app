@@ -1,5 +1,6 @@
 const anchor = require("@project-serum/anchor");
 const assert = require("assert");
+
 const {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -21,43 +22,47 @@ describe("ido-pool", () => {
 
   const program = anchor.workspace.IdoPool;
 
+  const idoPool = require("../sdk/ido-pool")(provider, program);
+
   // All mints default to 6 decimal places.
   const huskyverseIdoAmount = new anchor.BN(5000000);
 
   // These are all of the variables we assume exist in the world already and
   // are available to the client.
-  let usdcMintAccount = null;
-  let usdcMint = null;
-  let huskyverseMintAccount = null;
-  let huskyverseMint = null;
-  let idoAuthorityUsdc = null;
-  let idoAuthorityHuskyverse = null;
+  let deps = {
+    usdcMintAccount: null,
+    usdcMint: null,
+    huskyverseMintAccount: null,
+    huskyverseMint: null,
+    idoAuthorityUsdc: null,
+    idoAuthorityHuskyverse: null,
+  };
 
   it("Initializes the state-of-the-world", async () => {
-    usdcMintAccount = await createMint(provider);
-    huskyverseMintAccount = await createMint(provider);
-    usdcMint = usdcMintAccount.publicKey;
-    huskyverseMint = huskyverseMintAccount.publicKey;
-    idoAuthorityUsdc = await createTokenAccount(
+    deps.usdcMintAccount = await createMint(provider);
+    deps.huskyverseMintAccount = await createMint(provider);
+    deps.usdcMint = deps.usdcMintAccount.publicKey;
+    deps.huskyverseMint = deps.huskyverseMintAccount.publicKey;
+    deps.idoAuthorityUsdc = await createTokenAccount(
       provider,
-      usdcMint,
+      deps.usdcMint,
       provider.wallet.publicKey
     );
-    idoAuthorityHuskyverse = await createTokenAccount(
+    deps.idoAuthorityHuskyverse = await createTokenAccount(
       provider,
-      huskyverseMint,
+      deps.huskyverseMint,
       provider.wallet.publicKey
     );
     // Mint Huskyverse tokens that will be distributed from the IDO pool.
-    await huskyverseMintAccount.mintTo(
-      idoAuthorityHuskyverse,
+    await deps.huskyverseMintAccount.mintTo(
+      deps.idoAuthorityHuskyverse,
       provider.wallet.publicKey,
       [],
       huskyverseIdoAmount.toString()
     );
     idoAuthority_huskyverse_account = await getTokenAccount(
       provider,
-      idoAuthorityHuskyverse
+      deps.idoAuthorityHuskyverse
     );
     assert.ok(idoAuthority_huskyverse_account.amount.eq(huskyverseIdoAmount));
   });
@@ -68,36 +73,6 @@ describe("ido-pool", () => {
   let idoName = "test_ido";
 
   it("Initializes the IDO pool", async () => {
-    let bumps = new PoolBumps();
-
-    const [idoAccount, idoAccountBump] =
-      await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from(idoName)],
-        program.programId
-      );
-    bumps.idoAccount = idoAccountBump;
-
-    const [redeemableMint, redeemableMintBump] =
-      await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from(idoName), Buffer.from("redeemable_mint")],
-        program.programId
-      );
-    bumps.redeemableMint = redeemableMintBump;
-
-    const [poolHuskyverse, poolHuskyverseBump] =
-      await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from(idoName), Buffer.from("pool_huskyverse")],
-        program.programId
-      );
-    bumps.poolHuskyverse = poolHuskyverseBump;
-
-    const [poolUsdc, poolUsdcBump] =
-      await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from(idoName), Buffer.from("pool_usdc")],
-        program.programId
-      );
-    bumps.poolUsdc = poolUsdcBump;
-
     idoTimes = new IdoTimes();
     const nowBn = new anchor.BN(Date.now() / 1000);
     idoTimes.startIdo = nowBn.add(new anchor.BN(5));
@@ -105,31 +80,20 @@ describe("ido-pool", () => {
     idoTimes.endIdo = nowBn.add(new anchor.BN(15));
     idoTimes.endEscrow = nowBn.add(new anchor.BN(16));
 
-    await program.rpc.initializePool(
-      idoName,
-      bumps,
-      huskyverseIdoAmount,
-      idoTimes,
-      {
-        accounts: {
-          idoAuthority: provider.wallet.publicKey,
-          idoAuthorityHuskyverse,
-          idoAccount,
-          huskyverseMint,
-          usdcMint,
-          redeemableMint,
-          poolHuskyverse,
-          poolUsdc,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        },
-      }
-    );
+    try {
+      await idoPool.initializePool(
+        deps,
+        idoName,
+        idoTimes,
+        huskyverseIdoAmount
+      );
+    } catch (e) {
+      console.log("ERRRRR:", e);
+    }
 
-    idoAuthorityHuskyverseAccount = await getTokenAccount(
+    const idoAuthorityHuskyverseAccount = await getTokenAccount(
       provider,
-      idoAuthorityHuskyverse
+      deps.idoAuthorityHuskyverse
     );
     assert.ok(idoAuthorityHuskyverseAccount.amount.eq(new anchor.BN(0)));
   });
@@ -142,6 +106,8 @@ describe("ido-pool", () => {
   const firstDeposit = new anchor.BN(10_000_349);
 
   it("Exchanges user USDC for redeemable tokens", async () => {
+    const usdcMint = deps.usdcMint;
+    const huskyverseMint = deps.huskyverseMint;
     // Wait until the IDO has opened.
     if (Date.now() < idoTimes.startIdo.toNumber() * 1000) {
       await sleep(idoTimes.startIdo.toNumber() * 1000 - Date.now() + 2000);
@@ -181,7 +147,7 @@ describe("ido-pool", () => {
       createUserUsdcInstr
     );
     await provider.send(createUserUsdcTrns);
-    await usdcMintAccount.mintTo(
+    await deps.usdcMintAccount.mintTo(
       userUsdc,
       provider.wallet.publicKey,
       [],
@@ -243,6 +209,8 @@ describe("ido-pool", () => {
   let totalPoolUsdc, secondUserKeypair, secondUserUsdc;
 
   it("Exchanges a second users USDC for redeemable tokens", async () => {
+    const usdcMint = deps.usdcMint;
+    const huskyverseMint = deps.huskyverseMint;
     const [idoAccount] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from(idoName)],
       program.programId
@@ -283,7 +251,7 @@ describe("ido-pool", () => {
     createSecondUserUsdcTrns.add(transferSolInstr);
     createSecondUserUsdcTrns.add(createSecondUserUsdcInstr);
     await provider.send(createSecondUserUsdcTrns);
-    await usdcMintAccount.mintTo(
+    await deps.usdcMintAccount.mintTo(
       secondUserUsdc,
       provider.wallet.publicKey,
       [],
@@ -346,6 +314,8 @@ describe("ido-pool", () => {
   const firstWithdrawal = new anchor.BN(2_000_000);
 
   it("Exchanges user Redeemable tokens for USDC", async () => {
+    const usdcMint = deps.usdcMint;
+    const huskyverseMint = deps.huskyverseMint;
     const [idoAccount] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from(idoName)],
       program.programId
@@ -414,6 +384,7 @@ describe("ido-pool", () => {
   });
 
   it("Exchanges user Redeemable tokens for huskyverse", async () => {
+    const huskyverseMint = deps.huskyverseMint;
     // Wait until the IDO has ended.
     if (Date.now() < idoTimes.endIdo.toNumber() * 1000) {
       await sleep(idoTimes.endIdo.toNumber() * 1000 - Date.now() + 3000);
@@ -476,6 +447,7 @@ describe("ido-pool", () => {
   });
 
   it("Exchanges second user's Redeemable tokens for huskyverse", async () => {
+    const huskyverseMint = deps.huskyverseMint;
     const [idoAccount] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from(idoName)],
       program.programId
@@ -526,6 +498,10 @@ describe("ido-pool", () => {
   });
 
   it("Withdraws total USDC from pool account", async () => {
+    const usdcMint = deps.usdcMint;
+    const huskyverseMint = deps.huskyverseMint;
+    const idoAuthorityUsdc = deps.idoAuthorityUsdc;
+
     const [idoAccount] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from(idoName)],
       program.programId
@@ -555,6 +531,7 @@ describe("ido-pool", () => {
   });
 
   it("Withdraws USDC from the escrow account after waiting period is over", async () => {
+    const usdcMint = deps.usdcMint;
     // Wait until the escrow period is over.
     if (Date.now() < idoTimes.endEscrow.toNumber() * 1000 + 1000) {
       await sleep(idoTimes.endEscrow.toNumber() * 1000 - Date.now() + 4000);

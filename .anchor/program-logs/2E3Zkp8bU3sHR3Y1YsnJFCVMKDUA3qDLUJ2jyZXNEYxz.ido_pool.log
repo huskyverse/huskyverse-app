@@ -1,6 +1,6 @@
 Streaming transaction logs mentioning 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz. Confirmed commitment
-Transaction executed in slot 28:
-  Signature: 2EUNFtLyXnHi5SNVfXNXkPkKythU1QVAUp1tNthYBowHWi81rdRrNVn5vpbKeA8H7guX4wJYRoDpcgUHqeodpUCe
+Transaction executed in slot 27:
+  Signature: 4ceAwYD4Yh1ehWF2hkmwf8hARf4zyUa9a4TwF6Us1joT3MgWkVxcyXiqaBvDFdmLaTTuyk65eZU6VAEh5ohTWQve
   Status: Ok
   Log Messages:
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]
@@ -32,8 +32,8 @@ Transaction executed in slot 28:
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 81554 of 200000 compute units
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz success
-Transaction executed in slot 43:
-  Signature: 22P4Pg4SPpA1mh8fWHbocXr46dfhDL6hfFqq1U5ydfHSJAfMBJk2fsEDb6ogEZBELGygjh7h9qD933w6BhmascWk
+Transaction executed in slot 42:
+  Signature: 2LSESGCGao9fTGSX7tkmqiqsQ9uQ7anGgkKq7poLKdq5ZYcHQMkycAQqW3NsESdxgvPNXbg1Rb7phcziaVtjapw4
   Status: Ok
   Log Messages:
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]
@@ -59,37 +59,37 @@ Transaction executed in slot 43:
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 2779 of 137779 compute units
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 33219 of 166722 compute units
+    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz success
+Transaction executed in slot 45:
+  Signature: 4ZNkbbZfMt4FKMuXm5kC5cf68Q1qa59vrEwj1op9EV3TwvHQLbWzmAnK6ZnzpLpqAWspMfFZofBgMJJ4qo67Wv9w
+  Status: Ok
+  Log Messages:
+    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]
+    Program log: Instruction: InitUserRedeemable
+    Program 11111111111111111111111111111111 invoke [2]
+    Program 11111111111111111111111111111111 success
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]
+    Program log: Instruction: InitializeAccount
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 3412 of 183667 compute units
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
+    Program log: INIT USER REDEEMABLE
+    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 30278 of 200000 compute units
+    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz success
+    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]
+    Program log: Instruction: ExchangeUsdcForRedeemable
+    Program log: EXCHANGE USDC FOR REDEEMABLE
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]
+    Program log: Instruction: Transfer
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 3121 of 148875 compute units
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]
+    Program log: Instruction: MintTo
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 2779 of 142279 compute units
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
+    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 31719 of 169722 compute units
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz success
 Transaction executed in slot 46:
-  Signature: TunFz5fwu6eUstdEa1FmhdW9bCq4xTDHME26NareYZmtLUMDwhrqYr33euAuFhfJKA7NRUjCZR2E7hZGWbiZnAa
-  Status: Ok
-  Log Messages:
-    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]
-    Program log: Instruction: InitUserRedeemable
-    Program 11111111111111111111111111111111 invoke [2]
-    Program 11111111111111111111111111111111 success
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]
-    Program log: Instruction: InitializeAccount
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 3412 of 182167 compute units
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
-    Program log: INIT USER REDEEMABLE
-    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 33278 of 200000 compute units
-    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz success
-    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]
-    Program log: Instruction: ExchangeUsdcForRedeemable
-    Program log: EXCHANGE USDC FOR REDEEMABLE
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]
-    Program log: Instruction: Transfer
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 3121 of 144375 compute units
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]
-    Program log: Instruction: MintTo
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 2779 of 137779 compute units
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
-    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 33219 of 166722 compute units
-    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz success
-Transaction executed in slot 47:
-  Signature: b7GfHB66AtqT3ehTfmYWmFANTmcM6QvXh3ffAMqwfn43ewQEGNjFfT61EfHvh4vs5zRWvCWeZhbcgVPtjmdwMv7
+  Signature: 5KywTz5GKxtgrTHo4iBA25S7QAuC87RVTfg1J9GJxVHXV5MWwbpnfYsFqEkCcfxGqAnpDHGLLtapFazcEviS2kSw
   Status: Ok
   Log Messages:
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]
@@ -116,8 +116,8 @@ Transaction executed in slot 47:
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 39110 of 168431 compute units
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz success
-Transaction executed in slot 64:
-  Signature: 5LYzFoH1eKGz6nXFfPHxZzB7HsKmdJqDYG7NNbdQtkmPQYPhyM6dUkQ6xMJ2wwJn8TXTSQE6BB58KG8PWP4fHdQA
+Transaction executed in slot 63:
+  Signature: 2rxcZR8s6uL6ckHs4uuXeoWNW7DVCKoCBqCitJYrHb7QizprHu5Jf2DC7idRnduUBfT4apFU1NGWN5GaLBHEXEfL
   Status: Ok
   Log Messages:
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]
@@ -137,8 +137,8 @@ Transaction executed in slot 64:
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 39666 of 200000 compute units
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz success
-Transaction executed in slot 66:
-  Signature: 5xgfvscwsV1xyeZ1BV8DmK4KVvf9q3uJ5eGw49xxSVa69VF2VAvDo9FxuPA184W9nFGnAPuq858d9dp2z7p3wJfM
+Transaction executed in slot 65:
+  Signature: 5mbLwcA5MYt1nvv2LQDvxG237HLLGX22oeyrN7pgmhjAvVwgcMvWfdi2GH4B7XmFSUnkJWRhbyGeB9d9TUrbFSND
   Status: Ok
   Log Messages:
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]
@@ -146,20 +146,20 @@ Transaction executed in slot 66:
     Program log: EXCHANGE REDEEMABLE FOR huskyverse
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]
     Program log: Instruction: Burn
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 2766 of 177028 compute units
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 2766 of 178528 compute units
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]
     Program log: Instruction: Transfer
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 3121 of 170862 compute units
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 3121 of 172362 compute units
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]
     Program log: Instruction: CloseAccount
-    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 2297 of 164083 compute units
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 2297 of 165583 compute units
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
-    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 39791 of 200000 compute units
+    Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 38291 of 200000 compute units
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz success
-Transaction executed in slot 67:
-  Signature: 41jQjcBXrwNvu4wZr2zhnpzwzrqGt2iYMVXiUCyr121kE5pv1DLtRZR4Ju9aJXyKpa1cjoPJHi9BiNZf4t4Kixxs
+Transaction executed in slot 66:
+  Signature: 5mef1A5GTk7bZMG7SM3NPG4qNbnhS8xiYp7JUvTMRRzPoDePGpnZ5jsfshA9UuC2MZMYj43vUwtLABesCgZkb7qA
   Status: Ok
   Log Messages:
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]
@@ -171,8 +171,8 @@ Transaction executed in slot 67:
     Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz consumed 19005 of 200000 compute units
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz success
-Transaction executed in slot 68:
-  Signature: 2SvbvwhcA6uGyB2uDaQqPML3FwGcvQKD5t3s2uGTKKM7sxuH872ZParRqdDr1epJYw6jYyMcfrq9ikzSspGanSro
+Transaction executed in slot 67:
+  Signature: 2Z9YqYQJ8CAzVm6is1bHhWUFWfiF8CY3nP6tsEMAKv8Pbon1Gq3dZnFFgQknA1GjhBmGN9KfvvHp9Txy6Z2caLJH
   Status: Ok
   Log Messages:
     Program 2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz invoke [1]

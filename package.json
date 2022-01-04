@@ -5,6 +5,11 @@
   "engines": {
     "node": ">=11"
   },
+  "private": true,
+  "workspaces": [
+    "sdk/ido-pool",
+    "tests"
+  ],
   "scripts": {
     "test": "anchor test"
   },

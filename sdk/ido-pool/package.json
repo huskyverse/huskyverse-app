@@ -1,0 +1,7 @@
+{
+  "name": "ido-pool",
+  "version": "1.0.0",
+  "description": "ido-pool sdk",
+  "main": "index.js",
+  "license": "MIT"
+}

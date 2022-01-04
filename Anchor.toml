@@ -1,0 +1,9 @@
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[programs.localnet]
+ido_pool = "2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz"
+
+[scripts]
+test = "yarn run mocha -t 1000000 tests/"

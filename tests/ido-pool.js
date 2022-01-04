@@ -80,16 +80,7 @@ describe("ido-pool", () => {
     idoTimes.endIdo = nowBn.add(new anchor.BN(15));
     idoTimes.endEscrow = nowBn.add(new anchor.BN(16));
 
-    try {
-      await idoPool.initializePool(
-        deps,
-        idoName,
-        idoTimes,
-        huskyverseIdoAmount
-      );
-    } catch (e) {
-      console.log("ERRRRR:", e);
-    }
+    await idoPool.initializePool(deps, idoName, idoTimes, huskyverseIdoAmount);
 
     const idoAuthorityHuskyverseAccount = await getTokenAccount(
       provider,
@@ -107,27 +98,12 @@ describe("ido-pool", () => {
 
   it("Exchanges user USDC for redeemable tokens", async () => {
     const usdcMint = deps.usdcMint;
-    const huskyverseMint = deps.huskyverseMint;
     // Wait until the IDO has opened.
     if (Date.now() < idoTimes.startIdo.toNumber() * 1000) {
       await sleep(idoTimes.startIdo.toNumber() * 1000 - Date.now() + 2000);
     }
 
-    const [idoAccount] = await anchor.web3.PublicKey.findProgramAddress(
-      [Buffer.from(idoName)],
-      program.programId
-    );
-
-    const [redeemableMint] = await anchor.web3.PublicKey.findProgramAddress(
-      [Buffer.from(idoName), Buffer.from("redeemable_mint")],
-      program.programId
-    );
-
-    const [poolUsdc] = await anchor.web3.PublicKey.findProgramAddress(
-      [Buffer.from(idoName), Buffer.from("pool_usdc")],
-      program.programId
-    );
-
+    // Prep USDC token account and amounts for testing
     userUsdc = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
@@ -158,6 +134,22 @@ describe("ido-pool", () => {
     userUsdcAccount = await getTokenAccount(provider, userUsdc);
     assert.ok(userUsdcAccount.amount.eq(firstDeposit));
 
+    try {
+      await idoPool.exchangeUsdcForRedeemable(
+        deps,
+        idoName,
+        provider.wallet.publicKey,
+        userUsdc,
+        firstDeposit
+      );
+    } catch (err) {
+      console.log("This is the error message:", err.toString());
+    }
+
+    const [poolUsdc] = await anchor.web3.PublicKey.findProgramAddress(
+      [Buffer.from(idoName), Buffer.from("pool_usdc")],
+      program.programId
+    );
     const [userRedeemable] = await anchor.web3.PublicKey.findProgramAddress(
       [
         provider.wallet.publicKey.toBuffer(),
@@ -167,39 +159,10 @@ describe("ido-pool", () => {
       program.programId
     );
 
-    try {
-      const tx = await program.rpc.exchangeUsdcForRedeemable(firstDeposit, {
-        accounts: {
-          userAuthority: provider.wallet.publicKey,
-          userUsdc,
-          userRedeemable,
-          idoAccount,
-          usdcMint,
-          redeemableMint,
-          huskyverseMint,
-          poolUsdc,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        },
-        instructions: [
-          program.instruction.initUserRedeemable({
-            accounts: {
-              userAuthority: provider.wallet.publicKey,
-              userRedeemable,
-              idoAccount,
-              redeemableMint,
-              systemProgram: anchor.web3.SystemProgram.programId,
-              tokenProgram: TOKEN_PROGRAM_ID,
-              rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-            },
-          }),
-        ],
-      });
-    } catch (err) {
-      console.log("This is the error message", err.toString());
-    }
-
+    // usdc pool and user redeemable must match
     poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
     assert.ok(poolUsdcAccount.amount.eq(firstDeposit));
+
     userRedeemableAccount = await getTokenAccount(provider, userRedeemable);
     assert.ok(userRedeemableAccount.amount.eq(firstDeposit));
   });
@@ -272,33 +235,18 @@ describe("ido-pool", () => {
         program.programId
       );
 
-    await program.rpc.exchangeUsdcForRedeemable(secondDeposit, {
-      accounts: {
-        userAuthority: secondUserKeypair.publicKey,
-        userUsdc: secondUserUsdc,
-        userRedeemable: secondUserRedeemable,
-        idoAccount,
-        usdcMint,
-        redeemableMint,
-        huskyverseMint,
-        poolUsdc,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      },
-      instructions: [
-        program.instruction.initUserRedeemable({
-          accounts: {
-            userAuthority: secondUserKeypair.publicKey,
-            userRedeemable: secondUserRedeemable,
-            idoAccount,
-            redeemableMint,
-            systemProgram: anchor.web3.SystemProgram.programId,
-            tokenProgram: TOKEN_PROGRAM_ID,
-            rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-          },
-        }),
-      ],
-      signers: [secondUserKeypair],
-    });
+    try {
+      await idoPool.exchangeUsdcForRedeemable(
+        deps,
+        idoName,
+        secondUserKeypair.publicKey,
+        secondUserUsdc,
+        secondDeposit,
+        [secondUserKeypair]
+      );
+    } catch (err) {
+      console.log("This is the error message:", err.toString());
+    }
 
     secondUserRedeemableAccount = await getTokenAccount(
       provider,

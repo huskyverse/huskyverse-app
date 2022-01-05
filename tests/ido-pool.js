@@ -41,7 +41,7 @@ describe("ido-pool", () => {
 
   it("Initializes the state-of-the-world", async () => {
     deps.usdcMintAccount = await createMint(provider);
-    deps.huskyverseMintAccount = await createMint(provider);
+    deps.huskyverseMintAccount = await createMint(provider, undefined, 8);
     deps.usdcMint = deps.usdcMintAccount.publicKey;
     deps.huskyverseMint = deps.huskyverseMintAccount.publicKey;
     deps.idoAuthorityUsdc = await createTokenAccount(

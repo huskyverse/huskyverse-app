@@ -19,7 +19,7 @@ async function getTokenAccount(provider, addr) {
   return await serumCmn.getTokenAccount(provider, addr);
 }
 
-async function createMint(provider, authority) {
+async function createMint(provider, authority, decimals = 6) {
   if (authority === undefined) {
     authority = provider.wallet.publicKey;
   }
@@ -28,7 +28,7 @@ async function createMint(provider, authority) {
     provider.wallet.payer,
     authority,
     null,
-    6,
+    decimals,
     TOKEN_PROGRAM_ID
   );
   return mint;

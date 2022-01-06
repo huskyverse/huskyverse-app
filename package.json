@@ -7,8 +7,9 @@
   },
   "private": true,
   "workspaces": [
-    "sdk/ido-pool",
-    "tests"
+    "sdk/*",
+    "tests",
+    "frontend"
   ],
   "scripts": {
     "test": "anchor test"

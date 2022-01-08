@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const anchor = require("@project-serum/anchor");
+const { createInvalidExceptionError } = require("mocha/lib/errors");
 const createIdoPool = require("../sdk/ido-pool");
 const { createMint, createTokenAccount } = require("../tests/utils");
 
@@ -12,7 +13,8 @@ function IdoTimes() {
 }
 
 const main = async () => {
-  const provider = anchor.Provider.local("http://127.0.0.1:8899");
+  // TODO: replace with env
+  const provider = anchor.Provider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.IdoPool;

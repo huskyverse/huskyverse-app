@@ -3,5 +3,11 @@
   "version": "1.0.0",
   "description": "ido-pool sdk",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "typescript": "^4.5.4"
+  },
+  "scripts": {
+    "emit-dts": " npx -p typescript tsc **/*.js --declaration --allowJs --emitDeclarationOnly --esModuleInterop"
+  }
 }

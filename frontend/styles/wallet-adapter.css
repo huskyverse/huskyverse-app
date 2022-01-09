@@ -1,0 +1,34 @@
+.wallet-adapter-button {
+  background-color: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-family: "DM Sans", "Roboto", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+
+  border-radius: 20px;
+}
+
+.wallet-adapter-button-trigger {
+  height: 36px;
+  border: var(--chakra-colors-gray-300) 1px dashed;
+  color: var(--chakra-colors-gray-800);
+}
+
+.wallet-adapter-button:not([disabled]):focus-visible {
+  outline-color: white;
+}
+
+.wallet-adapter-button:not([disabled]):hover {
+  background-color: var(--chakra-colors-gray-100);
+}
+
+.wallet-adapter-button[disabled] {
+  background: #404144;
+  color: #999;
+  cursor: not-allowed;
+}

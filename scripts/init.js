@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const anchor = require("@project-serum/anchor");
-const { createInvalidExceptionError } = require("mocha/lib/errors");
 const createIdoPool = require("../sdk/ido-pool");
 const { createMint, createTokenAccount } = require("../tests/utils");
 
@@ -46,10 +45,10 @@ const main = async () => {
 
   const idoTimes = new IdoTimes();
   const nowBn = new anchor.BN(Date.now() / 1000);
-  idoTimes.startIdo = nowBn.add(new anchor.BN(5));
-  idoTimes.endDeposits = nowBn.add(new anchor.BN(10));
-  idoTimes.endIdo = nowBn.add(new anchor.BN(15));
-  idoTimes.endEscrow = nowBn.add(new anchor.BN(16));
+  idoTimes.startIdo = nowBn.add(new anchor.BN(100));
+  idoTimes.endDeposits = nowBn.add(new anchor.BN(200));
+  idoTimes.endIdo = nowBn.add(new anchor.BN(300));
+  idoTimes.endEscrow = nowBn.add(new anchor.BN(400));
 
   const deps = { usdcMint, huskyverseMint, idoAuthorityHuskyverse };
 

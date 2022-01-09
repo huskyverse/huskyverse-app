@@ -1,8 +1,10 @@
 const anchor = require("@project-serum/anchor");
-const TokenInstructions = require("@project-serum/serum").TokenInstructions;
-const TOKEN_PROGRAM_ID = new anchor.web3.PublicKey(
-  TokenInstructions.TOKEN_PROGRAM_ID.toString()
-);
+// const TokenInstructions = require("@project-serum/serum").TokenInstructions;
+// const TOKEN_PROGRAM_ID = new anchor.web3.PublicKey(
+//   TokenInstructions.TOKEN_PROGRAM_ID.toString()
+// );
+
+const { TOKEN_PROGRAM_ID } = require("@solana/spl-token");
 
 function PoolBumps() {
   this.idoAccount;

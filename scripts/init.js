@@ -2,7 +2,8 @@
 
 const anchor = require("@project-serum/anchor");
 const createIdoPool = require("../sdk/ido-pool");
-const { createMint, createTokenAccount } = require("../tests/utils");
+const { createTokenAccount } = require("../tests/utils");
+const { createMint, mockUsdcMint, mockHkvMint } = require("./_util");
 
 function IdoTimes() {
   this.startIdo;
@@ -24,10 +25,13 @@ const main = async () => {
   //   const addr = (await idoPool.accounts.ido())[0].toBase58();
   //   console.log(addr);
   //   console.log(await program.account.idoAccount.fetch(addr));
-  const usdcMintAccount = await createMint(provider);
-  const huskyverseMintAccount = await createMint(provider, undefined, 8);
-  const usdcMint = usdcMintAccount.publicKey;
-  const huskyverseMint = huskyverseMintAccount.publicKey;
+
+  // only dev
+  const USDCToken = await createMint(provider, mockUsdcMint, 6);
+  const HKVToken = await createMint(provider, mockHkvMint, 8);
+
+  const usdcMint = USDCToken.publicKey;
+  const huskyverseMint = HKVToken.publicKey;
   const huskyverseIdoAmount = new anchor.BN(5_000_000);
 
   const idoAuthorityHuskyverse = await createTokenAccount(
@@ -36,7 +40,7 @@ const main = async () => {
     provider.wallet.publicKey
   );
   // Mint Huskyverse tokens that will be distributed from the IDO pool.
-  await huskyverseMintAccount.mintTo(
+  await HKVToken.mintTo(
     idoAuthorityHuskyverse,
     provider.wallet.publicKey,
     [],
@@ -45,10 +49,10 @@ const main = async () => {
 
   const idoTimes = new IdoTimes();
   const nowBn = new anchor.BN(Date.now() / 1000);
-  idoTimes.startIdo = nowBn.add(new anchor.BN(60));
-  idoTimes.endDeposits = nowBn.add(new anchor.BN(60 * 2));
-  idoTimes.endIdo = nowBn.add(new anchor.BN(60 * 3));
-  idoTimes.endEscrow = nowBn.add(new anchor.BN(60 * 4));
+  idoTimes.startIdo = nowBn.add(new anchor.BN(0));
+  idoTimes.endDeposits = nowBn.add(new anchor.BN(60 * 10));
+  idoTimes.endIdo = nowBn.add(new anchor.BN(60 * 11));
+  idoTimes.endEscrow = nowBn.add(new anchor.BN(60 * 12));
 
   const deps = { usdcMint, huskyverseMint, idoAuthorityHuskyverse };
 

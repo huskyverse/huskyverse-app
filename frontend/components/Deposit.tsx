@@ -10,7 +10,6 @@ import {
   NumberInput,
 } from "@chakra-ui/react";
 
-import { BN } from "@project-serum/anchor";
 import { useForm } from "react-hook-form";
 
 import { usePhaseInfo } from "../hooks/usePhaseInfo";
@@ -20,14 +19,10 @@ import {
   useConnection,
   useWallet,
 } from "@solana/wallet-adapter-react";
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  Token,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
-import { PublicKey } from "@solana/web3.js";
 import { useIdoPool } from "../hooks/useIdoPool";
 import { useTokenBalance } from "../hooks/userTokenBalance";
+import { getATA, mintPubkey, toBN, tokenDecimals } from "../lib/token";
+import { BN } from "@project-serum/anchor";
 
 // TODO:
 // - better validation logic
@@ -72,30 +67,11 @@ export const Deposit = () => {
       <form
         onSubmit={handleSubmit(async (v) => {
           if (connection && publicKey && idoPool && wallet) {
-            // DEV ONLY
-            const usdcMint = new PublicKey(
-              "7N51bsWy9kXmDP89kyPGqUxg576q8CNYf8Gp18HnsRAf"
-            );
-            const huskyverseMint = new PublicKey(
-              "csGJUUWKYgEw83kgrH9tWQpYcVYETWWQtwvXy1nWtkH"
-            );
+            const usdcMint = mintPubkey("usdc");
+            const huskyverseMint = mintPubkey("hkv");
 
-            const usdcDecimals = 6;
-            const [_, w, d] = v.depositAmount.match(/^(\d+)\.?(\d*)$/) || [];
-
-            const maskedD =
-              d.length < usdcDecimals
-                ? d + "0".repeat(usdcDecimals - d.length)
-                : d.split("").splice(0, usdcDecimals).join("");
-
-            const amount = new BN(w + maskedD);
-
-            const ata = await Token.getAssociatedTokenAddress(
-              ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
-              TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
-              usdcMint, // mint
-              publicKey // owner
-            );
+            const amount = toBN(v.depositAmount, "usdc");
+            const ata = await getATA(publicKey, "usdc");
 
             await idoPool.exchangeUsdcForRedeemable(
               { usdcMint, huskyverseMint },
@@ -117,12 +93,22 @@ export const Deposit = () => {
             <InputGroup my="5">
               <Input
                 disabled={disabled}
-                // type="number"
                 variant={disabled ? "filled" : "outline"}
                 placeholder="USDC amount you want to contribute"
                 id="depositAmount"
                 {...register("depositAmount", {
+                  // TODO: better validation
                   required: "deposit amount can't be blank",
+                  pattern: {
+                    value: /^(\d+)\.?(\d{0,6})$/, // to be extracted
+                    message:
+                      "input must be valid number and max decimal places is " +
+                      tokenDecimals["usdc"],
+                  },
+                  validate: (v) =>
+                    (!!usdc.data &&
+                      toBN(v, "usdc").lte(new BN(usdc.data.amount))) ||
+                    "not enough USDC",
                 })}
               />
               <InputRightAddon>USDC</InputRightAddon>

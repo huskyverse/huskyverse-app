@@ -1,20 +1,11 @@
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  Token,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { useEffect } from "react";
 import useSWR from "swr";
+import { getATA } from "../lib/token";
 import { useIdoPool } from "./useIdoPool";
 
 type IDOToken = "usdc" | "redeemable" | "hkv";
-
-const mint = {
-  usdc: "7N51bsWy9kXmDP89kyPGqUxg576q8CNYf8Gp18HnsRAf",
-  hkv: "csGJUUWKYgEw83kgrH9tWQpYcVYETWWQtwvXy1nWtkH",
-};
 
 export const useTokenBalance = (token: IDOToken) => {
   const { connection } = useConnection();
@@ -28,12 +19,7 @@ export const useTokenBalance = (token: IDOToken) => {
       if (token === "redeemable") {
         acc = (await idoPool.accounts.userRedeemable(publicKey))[0];
       } else {
-        acc = await Token.getAssociatedTokenAddress(
-          ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
-          TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
-          new PublicKey(mint[token]), // mint
-          publicKey // owner
-        );
+        acc = await getATA(publicKey, token);
       }
 
       const tkb = await connection.getTokenAccountBalance(acc, "confirmed");

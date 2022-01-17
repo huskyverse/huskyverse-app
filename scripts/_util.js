@@ -1,6 +1,23 @@
 const anchor = require("@project-serum/anchor");
 const spl = require("@solana/spl-token");
 const { Transaction, SystemProgram } = anchor.web3;
+const path = require("path");
+
+// env: dev | mainnet
+const configEnv = () => {
+  const env = process.env.ENV ? `.env.${process.env.ENV}` : ".env";
+  const _path = path.join(__dirname, "..", env);
+  const out = require("dotenv").config({
+    path: _path,
+  });
+
+  if (out.error) {
+    console.error(out.error);
+  } else {
+    console.log(`environment config from "${env}":`);
+    console.table(out.parsed);
+  }
+};
 
 const mockUsdcMint = anchor.web3.Keypair.fromSecretKey(
   Uint8Array.from([
@@ -86,6 +103,7 @@ const createATA = async (provider, mintPubkey, userPubkey) => {
 };
 
 module.exports = {
+  configEnv,
   createMint,
   mockUsdcMint,
   mockHkvMint,

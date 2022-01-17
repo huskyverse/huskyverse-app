@@ -114,6 +114,10 @@ module.exports = (provider, program, idoName) => {
       const [poolUsdc] = await accounts.poolUsdc();
       const [userRedeemable] = await accounts.userRedeemable(userPubkey);
 
+      console.log("reddeemableMint", redeemableMint);
+      console.log("userRedeemable", userRedeemable.toBase58());
+      console.log("poolUSDC", poolUsdc);
+
       return await program.rpc.exchangeUsdcForRedeemable(depositAmount, {
         accounts: {
           userAuthority: userPubkey,
@@ -128,20 +132,22 @@ module.exports = (provider, program, idoName) => {
         },
         instructions: [
           // TODO: condition on if user redeemable exists?
-          program.instruction.initUserRedeemable({
-            accounts: {
-              userAuthority: userPubkey,
-              userRedeemable,
-              idoAccount,
-              redeemableMint,
-              systemProgram: anchor.web3.SystemProgram.programId,
-              tokenProgram: TOKEN_PROGRAM_ID,
-              rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-            },
-          }),
+          // program.instruction.initUserRedeemable({
+          //   accounts: {
+          //     userAuthority: userPubkey,
+          //     userRedeemable,
+          //     idoAccount,
+          //     redeemableMint,
+          //     systemProgram: anchor.web3.SystemProgram.programId,
+          //     tokenProgram: TOKEN_PROGRAM_ID,
+          //     rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          //   },
+          // }),
         ],
         signers,
       });
+
+      // return await provider.send(tx);
     },
     exchangeRedeemableForUsdc: async (
       { usdcMint, huskyverseMint } = _deps,

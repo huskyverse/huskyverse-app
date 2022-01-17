@@ -2,8 +2,6 @@ import { Container } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 
-import { Deposit } from "../components/Deposit";
-
 const Countdown = dynamic<{}>(
   () => import("../components/Countdown").then(({ Countdown }) => Countdown),
   {

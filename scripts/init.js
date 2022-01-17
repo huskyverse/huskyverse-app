@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 const anchor = require("@project-serum/anchor");
+const spl = require("@solana/spl-token");
 const createIdoPool = require("../sdk/ido-pool");
 const { createTokenAccount } = require("../tests/utils");
-const { createMint, mockUsdcMint, mockHkvMint } = require("./_util");
+const { configEnv, createMint, mockUsdcMint, mockHkvMint } = require("./_util");
+const { PublicKey } = anchor.web3;
 
 function IdoTimes() {
   this.startIdo;
@@ -13,7 +15,7 @@ function IdoTimes() {
 }
 
 const main = async () => {
-  // TODO: replace with env
+  configEnv();
   const provider = anchor.Provider.env();
   anchor.setProvider(provider);
 
@@ -22,17 +24,31 @@ const main = async () => {
   const idoName = "huskyverse";
   const idoPool = createIdoPool(provider, program, idoName);
 
-  //   const addr = (await idoPool.accounts.ido())[0].toBase58();
-  //   console.log(addr);
-  //   console.log(await program.account.idoAccount.fetch(addr));
-
+  let USDCToken, HKVToken;
   // only dev
-  const USDCToken = await createMint(provider, mockUsdcMint, 6);
-  const HKVToken = await createMint(provider, mockHkvMint, 8);
+  if (process.env.ENV === "dev") {
+    USDCToken = await createMint(provider, mockUsdcMint, 6);
+    HKVToken = await createMint(provider, mockHkvMint, 8);
+  } else {
+    // mainnet
+    USDCToken = new spl.Token(
+      provider.connection,
+      new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+      spl.TOKEN_PROGRAM_ID,
+      provider.wallet.payer
+    );
+
+    HKVToken = new spl.Token(
+      provider.connection,
+      new PublicKey("23f5TH1tFkfX6jPVQNy4VQ66Fo32WUc8zrZT1c14LzBM"),
+      spl.TOKEN_PROGRAM_ID,
+      provider.wallet.payer
+    );
+  }
 
   const usdcMint = USDCToken.publicKey;
   const huskyverseMint = HKVToken.publicKey;
-  const huskyverseIdoAmount = new anchor.BN(5_000_000);
+  const huskyverseIdoAmount = new anchor.BN(process.env.HKV_POOL_AMOUNT);
 
   const idoAuthorityHuskyverse = await createTokenAccount(
     provider,
@@ -50,9 +66,9 @@ const main = async () => {
   const idoTimes = new IdoTimes();
   const nowBn = new anchor.BN(Date.now() / 1000);
   idoTimes.startIdo = nowBn.add(new anchor.BN(0));
-  idoTimes.endDeposits = nowBn.add(new anchor.BN(60 * 10));
-  idoTimes.endIdo = nowBn.add(new anchor.BN(60 * 11));
-  idoTimes.endEscrow = nowBn.add(new anchor.BN(60 * 12));
+  idoTimes.endDeposits = nowBn.add(new anchor.BN(6000 * 30));
+  idoTimes.endIdo = nowBn.add(new anchor.BN(6000 * 31));
+  idoTimes.endEscrow = nowBn.add(new anchor.BN(6000 * 32));
 
   const deps = { usdcMint, huskyverseMint, idoAuthorityHuskyverse };
 

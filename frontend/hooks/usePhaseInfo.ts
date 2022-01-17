@@ -11,7 +11,7 @@ type Phase =
   | "ESCROW_OVER";
 
 export const usePhaseInfo = (interval = 100) => {
-  const { data, mutate, error } = useIdoAccount();
+  const { data, error } = useIdoAccount();
 
   const [mark, setMark] = useState({
     type: "",

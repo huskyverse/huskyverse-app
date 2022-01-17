@@ -114,9 +114,27 @@ module.exports = (provider, program, idoName) => {
       const [poolUsdc] = await accounts.poolUsdc();
       const [userRedeemable] = await accounts.userRedeemable(userPubkey);
 
-      console.log("reddeemableMint", redeemableMint);
-      console.log("userRedeemable", userRedeemable.toBase58());
-      console.log("poolUSDC", poolUsdc);
+      let instructions = [];
+
+      try {
+        await provider.connection.getTokenAccountBalance(userRedeemable);
+      } catch (_e) {
+        console.log("could not find account: ", userRedeemable.toBase58());
+        console.log("initializing...");
+        instructions = [
+          program.instruction.initUserRedeemable({
+            accounts: {
+              userAuthority: userPubkey,
+              userRedeemable,
+              idoAccount,
+              redeemableMint,
+              systemProgram: anchor.web3.SystemProgram.programId,
+              tokenProgram: TOKEN_PROGRAM_ID,
+              rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+            },
+          }),
+        ];
+      }
 
       return await program.rpc.exchangeUsdcForRedeemable(depositAmount, {
         accounts: {
@@ -130,20 +148,7 @@ module.exports = (provider, program, idoName) => {
           poolUsdc,
           tokenProgram: TOKEN_PROGRAM_ID,
         },
-        instructions: [
-          // TODO: condition on if user redeemable exists?
-          // program.instruction.initUserRedeemable({
-          //   accounts: {
-          //     userAuthority: userPubkey,
-          //     userRedeemable,
-          //     idoAccount,
-          //     redeemableMint,
-          //     systemProgram: anchor.web3.SystemProgram.programId,
-          //     tokenProgram: TOKEN_PROGRAM_ID,
-          //     rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-          //   },
-          // }),
-        ],
+        instructions,
         signers,
       });
 

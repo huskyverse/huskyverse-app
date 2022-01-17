@@ -4,15 +4,15 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Input,
   InputGroup,
   InputRightAddon,
   NumberInput,
-  NumberInputField,
 } from "@chakra-ui/react";
-import { useEffect } from "react";
+
 import { BN } from "@project-serum/anchor";
 import { useForm } from "react-hook-form";
-import useSWR, { mutate } from "swr";
+
 import { usePhaseInfo } from "../hooks/usePhaseInfo";
 
 import {
@@ -29,6 +29,10 @@ import { PublicKey } from "@solana/web3.js";
 import { useIdoPool } from "../hooks/useIdoPool";
 import { useTokenBalance } from "../hooks/userTokenBalance";
 
+// TODO:
+// - better validation logic
+// - constants extraction
+
 export const Deposit = () => {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
@@ -40,18 +44,12 @@ export const Deposit = () => {
   const usdc = useTokenBalance("usdc");
   const redeemable = useTokenBalance("redeemable");
 
-  const {
-    handleSubmit,
-    register,
-    reset,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
-  } = useForm();
-
-  useEffect(() => {
-    if (isSubmitSuccessful) {
-      reset({ depositAmount: "" });
-    }
-  }, [isSubmitSuccessful, reset]);
+  const { handleSubmit, register, formState, reset } = useForm({
+    defaultValues: {
+      depositAmount: "",
+    },
+  });
+  const { errors, isSubmitting } = formState;
 
   return (
     <Container>
@@ -82,7 +80,15 @@ export const Deposit = () => {
               "csGJUUWKYgEw83kgrH9tWQpYcVYETWWQtwvXy1nWtkH"
             );
 
-            const amount = new BN(v.depositAmount + "000000");
+            const usdcDecimals = 6;
+            const [_, w, d] = v.depositAmount.match(/^(\d+)\.?(\d*)$/) || [];
+
+            const maskedD =
+              d.length < usdcDecimals
+                ? d + "0".repeat(usdcDecimals - d.length)
+                : d.split("").splice(0, usdcDecimals).join("");
+
+            const amount = new BN(w + maskedD);
 
             const ata = await Token.getAssociatedTokenAddress(
               ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
@@ -91,7 +97,7 @@ export const Deposit = () => {
               publicKey // owner
             );
 
-            await idoPool?.exchangeUsdcForRedeemable(
+            await idoPool.exchangeUsdcForRedeemable(
               { usdcMint, huskyverseMint },
               publicKey,
               ata,
@@ -101,15 +107,17 @@ export const Deposit = () => {
 
             await usdc.mutate();
             await redeemable.mutate();
+            reset({ depositAmount: "" });
           }
         })}
       >
-        <FormControl isInvalid={errors.depositAmount}>
+        <FormControl isInvalid={!!errors.depositAmount}>
           <FormLabel htmlFor="depositAmount"></FormLabel>
           <NumberInput>
             <InputGroup my="5">
-              <NumberInputField
+              <Input
                 disabled={disabled}
+                // type="number"
                 variant={disabled ? "filled" : "outline"}
                 placeholder="USDC amount you want to contribute"
                 id="depositAmount"

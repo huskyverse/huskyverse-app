@@ -21,7 +21,7 @@ export const useTokenBalance = (token: IDOToken) => {
   const { publicKey } = useWallet();
   const { idoPool } = useIdoPool();
 
-  const res = useSWR(`user/${token}`, async () => {
+  const res = useSWR(`user/${token}/balance`, async () => {
     if (connection && publicKey && idoPool) {
       let acc: PublicKey;
 

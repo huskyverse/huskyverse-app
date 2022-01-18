@@ -24,10 +24,6 @@ import { useTokenBalance } from "../hooks/userTokenBalance";
 import { getATA, mintPubkey, toBN, tokenDecimals } from "../lib/token";
 import { BN } from "@project-serum/anchor";
 
-// TODO:
-// - better validation logic
-// - constants extraction
-
 export const Deposit = () => {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
@@ -97,10 +93,11 @@ export const Deposit = () => {
                 placeholder="USDC amount you want to contribute"
                 id="depositAmount"
                 {...register("depositAmount", {
-                  // TODO: better validation
                   required: "deposit amount can't be blank",
                   pattern: {
-                    value: /^(\d+)\.?(\d{0,6})$/, // to be extracted
+                    value: new RegExp(
+                      `^(\\d+)\\.?(\\d{0,${tokenDecimals["usdc"]}})$`
+                    ),
                     message:
                       "input must be valid number and max decimal places is " +
                       tokenDecimals["usdc"],

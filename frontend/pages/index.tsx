@@ -24,16 +24,16 @@ const Deposit = dynamic<{}>(
 
 const Home: NextPage = () => {
   return (
-    <Container>
+    <Container my="16">
       <Countdown />
       <Balance token="usdc" prefix="USDC" />
       <Deposit />
       <Balance token="redeemable" prefix="My Contribution" />
       <Withdraw />
       <Balance token="escrow" prefix="USDC Escrow" />
-      <ClaimHKV />
-      <Balance token="hkv" prefix="HKV" />
       <ClaimEscrowUSDC />
+      <Balance token="hkv" prefix="HKV" />
+      <ClaimHKV />
     </Container>
   );
 };

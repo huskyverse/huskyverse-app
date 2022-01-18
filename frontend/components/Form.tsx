@@ -8,6 +8,9 @@ import {
   InputGroup,
   InputRightAddon,
   NumberInput,
+  Stat,
+  StatLabel,
+  StatNumber,
 } from "@chakra-ui/react";
 
 import { useForm } from "react-hook-form";
@@ -31,6 +34,33 @@ import {
 import { BN, web3 } from "@project-serum/anchor";
 
 import { useIdoAccount } from "../hooks/useIdoAccount";
+import { useEffect, useRef, useState } from "react";
+import { animate } from "framer-motion";
+
+function Counter({ value }: { value: string }) {
+  const nodeRef = useRef<HTMLSpanElement>(null);
+  const [prevValue, setPrevValue] = useState(0);
+
+  useEffect(() => {
+    const node = nodeRef.current;
+
+    const controls = animate(prevValue, parseFloat(value), {
+      duration: 1,
+      type: "tween",
+      ease: "circOut",
+      onUpdate(value) {
+        if (node) {
+          node.textContent = new Intl.NumberFormat().format(value);
+          setPrevValue(value);
+        }
+      },
+    });
+
+    return () => controls.stop();
+  }, [value]);
+
+  return <span ref={nodeRef} />;
+}
 
 // TODO: review mutation
 export const Balance = ({
@@ -43,9 +73,18 @@ export const Balance = ({
   const { data, error } = useTokenBalance(token);
   return (
     <Container>
-      <p>
-        {prefix}: {error ? "-" : data ? data.uiAmountString : "..."}
-      </p>
+      <Stat>
+        <StatLabel>{prefix}</StatLabel>
+        <StatNumber>
+          {error ? (
+            "-"
+          ) : data ? (
+            <Counter value={data.uiAmountString || "0"} />
+          ) : (
+            "..."
+          )}
+        </StatNumber>
+      </Stat>
     </Container>
   );
 };

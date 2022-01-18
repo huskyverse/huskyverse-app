@@ -3,7 +3,7 @@ import { BN } from "@project-serum/anchor";
 import { useState } from "react";
 import { useIdoAccount } from "./useIdoAccount";
 
-type Phase =
+export type Phase =
   | "PRE_IDO"
   | "UNRESTRICTED"
   | "WITHDRAW"

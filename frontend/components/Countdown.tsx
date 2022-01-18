@@ -1,5 +1,4 @@
-import { BN } from "@project-serum/anchor";
-import { FC, useState } from "react";
+import { FC } from "react";
 
 import CountdownT from "react-countdown";
 import { Center, Container } from "@chakra-ui/react";

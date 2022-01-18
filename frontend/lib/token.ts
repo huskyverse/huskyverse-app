@@ -1,10 +1,10 @@
-import { BN } from "@project-serum/anchor";
+import { BN, Provider, web3 } from "@project-serum/anchor";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   Token,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 
 // TODO: config by env
 const mint = {
@@ -18,6 +18,31 @@ export const tokenDecimals = {
 };
 
 export const mintPubkey = (k: "usdc" | "hkv") => new PublicKey(mint[k]);
+
+// TODO: create ATA if not exist
+
+export const createATA = async (
+  publicKey: PublicKey,
+  token: "usdc" | "hkv",
+  provider: Provider
+) => {
+  const ata = await getATA(publicKey, token);
+
+  const tx = new Transaction().add(
+    Token.createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      mintPubkey(token),
+      ata,
+      publicKey,
+      publicKey
+    )
+  );
+
+  await provider.send(tx);
+
+  return ata;
+};
 
 export const getATA = async (publicKey: PublicKey, token: "usdc" | "hkv") => {
   return await Token.getAssociatedTokenAddress(

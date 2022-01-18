@@ -5,7 +5,7 @@ import useSWR from "swr";
 import { getATA } from "../lib/token";
 import { useIdoPool } from "./useIdoPool";
 
-type IDOToken = "usdc" | "redeemable" | "hkv";
+export type IDOToken = "usdc" | "redeemable" | "escrow" | "hkv"; // add escrow
 
 export const useTokenBalance = (token: IDOToken) => {
   const { connection } = useConnection();
@@ -18,6 +18,8 @@ export const useTokenBalance = (token: IDOToken) => {
 
       if (token === "redeemable") {
         acc = (await idoPool.accounts.userRedeemable(publicKey))[0];
+      } else if (token === "escrow") {
+        acc = (await idoPool.accounts.escrowUsdc(publicKey))[0];
       } else {
         acc = await getATA(publicKey, token);
       }

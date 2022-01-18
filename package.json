@@ -12,7 +12,8 @@
     "frontend"
   ],
   "scripts": {
-    "test": "anchor test"
+    "test": "anchor test",
+    "init-dev": "anchor deploy && ENV=dev anchor run init && ENV=dev anchor run init-mock-spl"
   },
   "dependencies": {
     "@project-serum/anchor": "^0.19.1-beta.1",

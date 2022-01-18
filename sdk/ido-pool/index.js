@@ -119,7 +119,10 @@ module.exports = (provider, program, idoName) => {
       try {
         await provider.connection.getTokenAccountBalance(userRedeemable);
       } catch (_e) {
-        console.log("could not find account: ", userRedeemable.toBase58());
+        console.log(
+          "could not find account [userRedeemable]: ",
+          userRedeemable.toBase58()
+        );
         console.log("initializing...");
         instructions = [
           program.instruction.initUserRedeemable({
@@ -151,8 +154,6 @@ module.exports = (provider, program, idoName) => {
         instructions,
         signers,
       });
-
-      // return await provider.send(tx);
     },
     exchangeRedeemableForUsdc: async (
       { usdcMint, huskyverseMint } = _deps,
@@ -164,6 +165,31 @@ module.exports = (provider, program, idoName) => {
       const [poolUsdc] = await accounts.poolUsdc();
       const [userRedeemable] = await accounts.userRedeemable(userPubKey);
       const [escrowUsdc] = await accounts.escrowUsdc(userPubKey);
+
+      let instructions = [];
+
+      try {
+        await provider.connection.getTokenAccountBalance(escrowUsdc);
+      } catch (_e) {
+        console.log(
+          "could not find account [escrowUsdc]: ",
+          escrowUsdc.toBase58()
+        );
+        console.log("initializing...");
+        instructions = [
+          program.instruction.initEscrowUsdc({
+            accounts: {
+              userAuthority: userPubKey,
+              escrowUsdc,
+              idoAccount,
+              usdcMint,
+              systemProgram: anchor.web3.SystemProgram.programId,
+              tokenProgram: TOKEN_PROGRAM_ID,
+              rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+            },
+          }),
+        ];
+      }
 
       return await program.rpc.exchangeRedeemableForUsdc(withdrawalAmount, {
         accounts: {
@@ -177,20 +203,7 @@ module.exports = (provider, program, idoName) => {
           poolUsdc,
           tokenProgram: TOKEN_PROGRAM_ID,
         },
-        instructions: [
-          // TODO: condition on if escrow exists?
-          program.instruction.initEscrowUsdc({
-            accounts: {
-              userAuthority: userPubKey,
-              escrowUsdc,
-              idoAccount,
-              usdcMint,
-              systemProgram: anchor.web3.SystemProgram.programId,
-              tokenProgram: TOKEN_PROGRAM_ID,
-              rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-            },
-          }),
-        ],
+        instructions,
       });
     },
     exchangeRedeemableForHuskyverse: async (
@@ -222,6 +235,28 @@ module.exports = (provider, program, idoName) => {
           signers,
         }
       );
+    },
+
+    withdrawFromEscrow: async (
+      { usdcMint },
+      userUsdc,
+      userPublicKey,
+      amount
+    ) => {
+      const [idoAccount] = await accounts.ido();
+      const [escrowUsdc] = await accounts.escrowUsdc(userPublicKey);
+
+      await program.rpc.withdrawFromEscrow(amount, {
+        accounts: {
+          payer: userPublicKey,
+          userAuthority: userPublicKey,
+          userUsdc,
+          escrowUsdc,
+          idoAccount,
+          usdcMint,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        },
+      });
     },
     accounts,
   };

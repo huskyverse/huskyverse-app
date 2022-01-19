@@ -25,8 +25,8 @@ import {
 import { useIdoPool } from "../hooks/useIdoPool";
 import { IDOToken, useTokenBalance } from "../hooks/userTokenBalance";
 import {
-  createATA,
   getATA,
+  getOrCreateATA,
   mintPubkey,
   toBN,
   tokenDecimals,
@@ -287,7 +287,6 @@ export const Withdraw = () => {
   );
 };
 
-// check if user redeemable account still exists
 export const ClaimHKV = () => {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
@@ -319,20 +318,8 @@ export const ClaimHKV = () => {
             provider
           ) {
             const huskyverseMint = mintPubkey("hkv");
-
             const amount = redeemable.data.amount;
-
-            let ata;
-            try {
-              ata = await createATA(publicKey, "hkv", provider);
-            } catch (_e) {
-              console.warn(_e);
-              ata = await getATA(publicKey, "hkv");
-            }
-
-            console.log("ata ", ata.toBase58());
-            console.log("pubk ", publicKey.toBase58());
-            console.log("amount", amount);
+            const ata = await getOrCreateATA(provider, publicKey, "hkv");
 
             await idoPool.exchangeRedeemableForHuskyverse(
               { huskyverseMint },
@@ -360,7 +347,6 @@ export const ClaimHKV = () => {
   );
 };
 
-// TODO: withdraw from escrow
 export const ClaimEscrowUSDC = () => {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
@@ -392,16 +378,8 @@ export const ClaimEscrowUSDC = () => {
             provider
           ) {
             const usdcMint = mintPubkey("usdc");
-
             const amount = escrowUsdc.data.amount;
-
-            let ata;
-            try {
-              ata = await createATA(publicKey, "usdc", provider);
-            } catch (_e) {
-              console.warn(_e);
-              ata = await getATA(publicKey, "usdc");
-            }
+            const ata = await getOrCreateATA(provider, publicKey, "usdc");
 
             await idoPool.withdrawFromEscrow(
               { usdcMint },

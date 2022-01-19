@@ -53,6 +53,21 @@ export const getATA = async (publicKey: PublicKey, token: "usdc" | "hkv") => {
   );
 };
 
+export const getOrCreateATA = async (
+  provider: Provider,
+  publicKey: PublicKey,
+  token: "usdc" | "hkv"
+) => {
+  const ata = await getATA(publicKey, token);
+  const info = await provider.connection.getAccountInfo(ata, "confirmed");
+
+  if (!info) {
+    await createATA(publicKey, token, provider);
+  }
+
+  return ata;
+};
+
 export const toBN = (s: string, token: "usdc" | "hkv") => {
   const decimals = tokenDecimals[token];
   const [_, w, d] = s.match(/^(\d+)\.?(\d*)$/) || [];

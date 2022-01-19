@@ -67,8 +67,8 @@ const main = async () => {
   const nowBn = new anchor.BN(Date.now() / 1000);
   idoTimes.startIdo = nowBn.add(new anchor.BN(10));
   idoTimes.endDeposits = nowBn.add(new anchor.BN(60));
-  idoTimes.endIdo = nowBn.add(new anchor.BN(60 * 4));
-  idoTimes.endEscrow = nowBn.add(new anchor.BN(60 * 5));
+  idoTimes.endIdo = nowBn.add(new anchor.BN(60 * 2));
+  idoTimes.endEscrow = nowBn.add(new anchor.BN(60 * 3));
 
   const deps = { usdcMint, huskyverseMint, idoAuthorityHuskyverse };
 

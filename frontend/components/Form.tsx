@@ -36,6 +36,10 @@ import { BN, web3 } from "@project-serum/anchor";
 import { useIdoAccount } from "../hooks/useIdoAccount";
 import { useEffect, useRef, useState } from "react";
 import { animate } from "framer-motion";
+import {
+  usePredictedResult,
+  useRedeemableMint,
+} from "../hooks/usePredictedResult";
 
 function Counter({ value }: { value: string }) {
   const nodeRef = useRef<HTMLSpanElement>(null);
@@ -50,7 +54,9 @@ function Counter({ value }: { value: string }) {
       ease: "circOut",
       onUpdate(value) {
         if (node) {
-          node.textContent = new Intl.NumberFormat().format(value);
+          node.textContent = new Intl.NumberFormat(undefined, {
+            maximumFractionDigits: 16,
+          }).format(value);
           setPrevValue(value);
         }
       },
@@ -89,6 +95,40 @@ export const Balance = ({
   );
 };
 
+export const PredictedResult = () => {
+  const res = usePredictedResult();
+  const { price, resultedHkv } = res || {};
+  const toDecimalString = (amount: BN, decimal: number): string => {
+    const s = amount.toString();
+
+    // "12345678", 8 -> "0.12345678"
+    if (s.length === decimal) {
+      return "0." + s;
+    }
+
+    // "1234", 8 -> "0.00001234"
+    if (s.length < decimal) {
+      return "0." + "0".repeat(decimal - s.length) + s;
+    }
+
+    return `${s.slice(0, s.length - decimal)}.${s.slice(s.length - decimal)}`;
+  };
+  return (
+    <Container>
+      <Stat>
+        <StatLabel>Price</StatLabel>
+        <StatNumber>{price ? <Counter value={price} /> : "..."}</StatNumber>
+      </Stat>
+      <Stat>
+        <StatLabel>You will get</StatLabel>
+        <StatNumber>
+          {resultedHkv ? <Counter value={resultedHkv} /> : "..."}
+        </StatNumber>
+      </Stat>
+    </Container>
+  );
+};
+
 export const Deposit = () => {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
@@ -99,6 +139,10 @@ export const Deposit = () => {
 
   const usdc = useTokenBalance("usdc");
   const redeemable = useTokenBalance("redeemable");
+  const poolUsdc = useTokenBalance("pool_usdc");
+  const redeemableMint = useRedeemableMint();
+
+  const amt = new BN(usdc.data?.amount || "0");
 
   const { handleSubmit, register, formState, reset } = useForm({
     defaultValues: {
@@ -128,6 +172,8 @@ export const Deposit = () => {
 
             await usdc.mutate();
             await redeemable.mutate();
+            await poolUsdc.mutate();
+            await redeemableMint.mutate();
             reset({ depositAmount: "" });
           }
         })}
@@ -152,8 +198,7 @@ export const Deposit = () => {
                       tokenDecimals["usdc"],
                   },
                   validate: (v) =>
-                    (!!usdc.data &&
-                      toBN(v, "usdc").lte(new BN(usdc.data.amount))) ||
+                    (!!usdc.data && toBN(v, "usdc").lte(amt)) ||
                     "not enough USDC",
                 })}
               />
@@ -205,7 +250,10 @@ export const Withdraw = () => {
 
   const redeemable = useTokenBalance("redeemable");
   const escrow = useTokenBalance("escrow");
+  const poolUsdc = useTokenBalance("pool_usdc");
+  const redeemableMint = useRedeemableMint();
 
+  const amt = new BN(redeemable.data?.amount || "0");
   // >>> TOUCHED
   const { handleSubmit, register, formState, reset } = useForm({
     defaultValues: {
@@ -234,6 +282,8 @@ export const Withdraw = () => {
 
             await redeemable.mutate();
             await escrow.mutate();
+            await poolUsdc.mutate();
+            await redeemableMint.mutate();
             reset({ withdrawalAmount: "" });
           }
         })}
@@ -260,8 +310,7 @@ export const Withdraw = () => {
                       tokenDecimals["usdc"],
                   },
                   validate: (v) =>
-                    (!!redeemable.data &&
-                      toBN(v, "usdc").lte(new BN(redeemable.data.amount))) ||
+                    (!!redeemable.data && toBN(v, "usdc").lte(amt)) ||
                     "not enough contributed USDC to withdraw from",
                 })}
               />
@@ -301,6 +350,8 @@ export const ClaimHKV = () => {
 
   const hkv = useTokenBalance("hkv");
   const redeemable = useTokenBalance("redeemable");
+  const poolHuskyverse = useTokenBalance("pool_huskyverse");
+  const redeemableMint = useRedeemableMint();
 
   const { handleSubmit, formState } = useForm();
   const { isSubmitting } = formState;
@@ -331,6 +382,8 @@ export const ClaimHKV = () => {
 
             await hkv.mutate();
             await redeemable.mutate();
+            await poolHuskyverse.mutate();
+            await redeemableMint.mutate();
           }
         })}
       >

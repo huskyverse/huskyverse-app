@@ -26,7 +26,7 @@ const main = async () => {
         ata,
         provider.wallet.publicKey,
         [provider.wallet.payer],
-        Math.floor(Math.random() * 10000000000)
+        Math.floor(Math.random() * 10000000000000)
       );
     });
 };

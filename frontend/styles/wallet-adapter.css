@@ -14,21 +14,8 @@
 }
 
 .wallet-adapter-button-trigger {
-  height: 36px;
-  border: var(--chakra-colors-gray-300) 1px dashed;
-  color: var(--chakra-colors-gray-800);
-}
+  height: 40px;
+  border: var(--chakra-colors-whiteAlpha-200) 1px solid;
 
-.wallet-adapter-button:not([disabled]):focus-visible {
-  outline-color: white;
-}
-
-.wallet-adapter-button:not([disabled]):hover {
-  background-color: var(--chakra-colors-gray-100);
-}
-
-.wallet-adapter-button[disabled] {
-  background: #404144;
-  color: #999;
-  cursor: not-allowed;
+  background-color: var(--chakra-colors-whiteAlpha-300);
 }

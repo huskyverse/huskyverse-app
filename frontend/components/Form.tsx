@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Container,
   FormControl,
@@ -8,7 +9,9 @@ import {
   InputGroup,
   InputRightAddon,
   NumberInput,
+  Skeleton,
   Stat,
+  StatGroup,
   StatLabel,
   StatNumber,
 } from "@chakra-ui/react";
@@ -40,6 +43,7 @@ import {
   usePredictedResult,
   useRedeemableMint,
 } from "../hooks/usePredictedResult";
+import { Glass } from "./Glass";
 
 function Counter({ value }: { value: string }) {
   const nodeRef = useRef<HTMLSpanElement>(null);
@@ -52,12 +56,12 @@ function Counter({ value }: { value: string }) {
       duration: 1,
       type: "tween",
       ease: "circOut",
-      onUpdate(value) {
+      onUpdate(currentValue) {
         if (node) {
           node.textContent = new Intl.NumberFormat(undefined, {
-            maximumFractionDigits: 16,
-          }).format(value);
-          setPrevValue(value);
+            maximumFractionDigits: currentValue === parseFloat(value) ? 10 : 2,
+          }).format(currentValue);
+          setPrevValue(currentValue);
         }
       },
     });
@@ -77,55 +81,41 @@ export const Balance = ({
   prefix: string;
 }) => {
   const { data, error } = useTokenBalance(token);
+  const { wallet } = useWallet();
   return (
-    <Container>
-      <Stat>
-        <StatLabel>{prefix}</StatLabel>
-        <StatNumber>
-          {error ? (
-            "-"
-          ) : data ? (
-            <Counter value={data.uiAmountString || "0"} />
-          ) : (
-            "..."
-          )}
-        </StatNumber>
-      </Stat>
-    </Container>
+    <Stat>
+      <StatLabel>{prefix}</StatLabel>
+      <StatNumber>
+        {error ? (
+          "-"
+        ) : (
+          <Skeleton isLoaded={!!data || !wallet}>
+            {data ? <Counter value={data.uiAmountString || "0"} /> : "..."}
+          </Skeleton>
+        )}
+      </StatNumber>
+    </Stat>
   );
 };
 
 export const PredictedResult = () => {
   const res = usePredictedResult();
   const { price, resultedHkv } = res || {};
-  const toDecimalString = (amount: BN, decimal: number): string => {
-    const s = amount.toString();
-
-    // "12345678", 8 -> "0.12345678"
-    if (s.length === decimal) {
-      return "0." + s;
-    }
-
-    // "1234", 8 -> "0.00001234"
-    if (s.length < decimal) {
-      return "0." + "0".repeat(decimal - s.length) + s;
-    }
-
-    return `${s.slice(0, s.length - decimal)}.${s.slice(s.length - decimal)}`;
-  };
   return (
-    <Container>
-      <Stat>
-        <StatLabel>Price</StatLabel>
-        <StatNumber>{price ? <Counter value={price} /> : "..."}</StatNumber>
-      </Stat>
-      <Stat>
-        <StatLabel>You will get</StatLabel>
-        <StatNumber>
-          {resultedHkv ? <Counter value={resultedHkv} /> : "..."}
-        </StatNumber>
-      </Stat>
-    </Container>
+    <Glass>
+      <StatGroup>
+        <Stat>
+          <StatLabel>Price</StatLabel>
+          <StatNumber>{price ? <Counter value={price} /> : "..."}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>You will get</StatLabel>
+          <StatNumber>
+            {resultedHkv ? <Counter value={resultedHkv} /> : "..."}
+          </StatNumber>
+        </Stat>
+      </StatGroup>
+    </Glass>
   );
 };
 
@@ -152,7 +142,7 @@ export const Deposit = () => {
   const { errors, isSubmitting } = formState;
 
   return (
-    <Container my="5">
+    <Box my="5">
       <form
         onSubmit={handleSubmit(async (v) => {
           if (connection && publicKey && idoPool && wallet) {
@@ -214,11 +204,11 @@ export const Deposit = () => {
             w="full"
             type="submit"
           >
-            Deposit
+            Contribute
           </Button>
         </FormControl>
       </form>
-    </Container>
+    </Box>
   );
 };
 
@@ -265,7 +255,7 @@ export const Withdraw = () => {
   const { errors, isSubmitting } = formState;
 
   return (
-    <Container my="5">
+    <Box my="5">
       <form
         onSubmit={handleSubmit(async (v) => {
           if (connection && publicKey && idoPool && wallet) {
@@ -326,13 +316,13 @@ export const Withdraw = () => {
             w="full"
             type="submit"
           >
-            Withdraw USDC Contribution to Escrow
+            Withdraw
           </Button>
           {/* TODO: Check if this is correct date time for Locale */}
           <sub>locked until .. {endEscrowTime.data?.toLocaleString()}</sub>
         </FormControl>
       </form>
-    </Container>
+    </Box>
   );
 };
 
@@ -357,7 +347,7 @@ export const ClaimHKV = () => {
   const { isSubmitting } = formState;
 
   return (
-    <Container my="5">
+    <Box my="5">
       <form
         onSubmit={handleSubmit(async () => {
           if (
@@ -396,7 +386,7 @@ export const ClaimHKV = () => {
           Claim All HKV
         </Button>
       </form>
-    </Container>
+    </Box>
   );
 };
 
@@ -419,7 +409,7 @@ export const ClaimEscrowUSDC = () => {
   const { isSubmitting } = formState;
 
   return (
-    <Container my="5">
+    <Box my="5">
       <form
         onSubmit={handleSubmit(async () => {
           if (
@@ -452,9 +442,9 @@ export const ClaimEscrowUSDC = () => {
           w="full"
           type="submit"
         >
-          Claim All Locked USDC
+          Claim
         </Button>
       </form>
-    </Container>
+    </Box>
   );
 };

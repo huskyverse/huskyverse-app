@@ -6,23 +6,24 @@ export const useIdoPool = () => {
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
 
+  let provider;
   if (wallet) {
-    const provider = new Provider(connection, wallet, {
+    provider = new Provider(connection, wallet, {
       commitment: "confirmed",
     });
     setProvider(provider);
-
-    const programId = new web3.PublicKey(
-      "2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz" // TODO: extract this to config
-    );
-
-    const program = new Program(idoPoolIdl, programId);
-
-    return {
-      program,
-      provider,
-      idoPool: IDOPool(provider, program, "huskyverse"),
-    };
   }
-  return {};
+
+  const programId = new web3.PublicKey(
+    "2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz" // TODO: extract this to config
+  );
+
+  const program = new Program(idoPoolIdl, programId);
+  const idoPool = IDOPool(provider, program, "huskyverse");
+
+  return {
+    program,
+    provider,
+    idoPool,
+  };
 };

@@ -8,11 +8,11 @@ import { Image } from "@chakra-ui/react";
 
 export const Header: FC = () => {
   return (
-    <Box px="16" py="5" backgroundColor="grey.900">
+    <Box px="16" py="10" backgroundColor="grey.900">
       <Flex align="center" justify="center">
         <Container>
           <Image
-            boxSize="50px"
+            boxSize="40px"
             src="https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/23f5TH1tFkfX6jPVQNy4VQ66Fo32WUc8zrZT1c14LzBM/logo.png"
           />
         </Container>

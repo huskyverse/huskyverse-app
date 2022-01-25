@@ -4,8 +4,6 @@ import type { AppProps } from "next/app";
 import { Box, ChakraProvider, extendTheme } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
 import { ReactNode } from "react";
-import { mode } from "@chakra-ui/theme-tools";
-import { Dict } from "@chakra-ui/utils";
 
 // Use require instead of import, and order matters
 require("../styles/globals.css");

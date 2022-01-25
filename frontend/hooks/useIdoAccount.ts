@@ -16,10 +16,10 @@ export const useIdoAccount = () => {
       const s = new BN(Date.now() / 1000);
       return {
         idoTimes: {
-          startIdo: s.add(new BN(0)),
-          endDeposits: s.add(new BN(10)),
-          endIdo: s.add(new BN(15)),
-          endEscrow: s.add(new BN(20)),
+          startIdo: s.add(new BN(10)),
+          endDeposits: s.add(new BN(100)),
+          endIdo: s.add(new BN(150)),
+          endEscrow: s.add(new BN(200)),
         },
       };
     }

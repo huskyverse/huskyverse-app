@@ -16,6 +16,7 @@
 .wallet-adapter-button-trigger {
   height: 40px;
   border: var(--chakra-colors-whiteAlpha-200) 1px solid;
-
-  background-color: var(--chakra-colors-whiteAlpha-300);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: var(--chakra-colors-whiteAlpha-200);
 }

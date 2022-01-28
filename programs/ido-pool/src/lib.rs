@@ -137,7 +137,8 @@ pub mod ido_pool {
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
         token::burn(cpi_ctx, amount)?;
 
-        // Transfer USDC from pool account to the user's escrow account.
+        // TODO_NO_ESCROW:1.3 change escrow_usdc to user_usdc
+        // Transfer USDC from pool account to the user's escrow account -> nah, userUsdc dee kwa.
         let cpi_accounts = Transfer {
             from: ctx.accounts.pool_usdc.to_account_info(),
             to: ctx.accounts.escrow_usdc.to_account_info(),
@@ -413,6 +414,8 @@ pub struct InitEscrowUsdc<'info> {
 pub struct ExchangeRedeemableForUsdc<'info> {
     // User Accounts
     pub user_authority: Signer<'info>,
+    // TODO_NO_ESCROW:1.2 change escrow_usdc to user_usdc
+    // make sure that the token account is own by the signer
     #[account(mut,
         seeds = [user_authority.key().as_ref(),
             ido_account.ido_name.as_ref().trim_ascii_whitespace(),

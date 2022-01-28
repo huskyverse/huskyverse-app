@@ -168,6 +168,7 @@ module.exports = (provider, program, idoName) => {
 
       let instructions = [];
 
+      // TODO_NO_ESCROW:1.1 Init ata instead, has code for that in frontend leaw. so this is no need
       try {
         await provider.connection.getTokenAccountBalance(escrowUsdc);
       } catch (_e) {
@@ -194,6 +195,7 @@ module.exports = (provider, program, idoName) => {
       return await program.rpc.exchangeRedeemableForUsdc(withdrawalAmount, {
         accounts: {
           userAuthority: userPubKey,
+          // TODO_NO_ESCROW:1.2 Change this to userUsdc
           escrowUsdc,
           userRedeemable,
           idoAccount,

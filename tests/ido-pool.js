@@ -248,6 +248,8 @@ describe("ido-pool", () => {
     poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
     assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
     escrowUsdcAccount = await getTokenAccount(provider, escrowUsdc);
+
+    // TODO_NO_ESCROW:1 check userUsdc account instead
     assert.ok(escrowUsdcAccount.amount.eq(firstWithdrawal));
   });
 
@@ -345,6 +347,7 @@ describe("ido-pool", () => {
     assert.ok(idoAuthorityUsdcAccount.amount.eq(totalPoolUsdc));
   });
 
+  // TODO_NO_ESCROW:2 REMOVE THIS
   it("Withdraws USDC from the escrow account after waiting period is over", async () => {
     const usdcMint = deps.usdcMint;
     // Wait until the escrow period is over.
@@ -377,6 +380,8 @@ describe("ido-pool", () => {
     this.startIdo;
     this.endDeposts;
     this.endIdo;
+
+    // TODO_NO_ESCROW:3 Remove this
     this.endEscrow;
   }
 });

@@ -34,13 +34,7 @@ import {
 } from "@chakra-ui/icons";
 import { motion } from "framer-motion";
 
-const phases: Phase[] = [
-  "PRE_IDO",
-  "UNRESTRICTED",
-  "WITHDRAW",
-  "IDO_OVER",
-  "ESCROW_OVER",
-];
+const phases: Phase[] = ["PRE_IDO", "UNRESTRICTED", "WITHDRAW", "IDO_OVER"];
 
 const displayPhase = (phase: Phase) => {
   const mapping: { [P in Phase]: string } = {
@@ -48,7 +42,6 @@ const displayPhase = (phase: Phase) => {
     UNRESTRICTED: "Unrestricted (Contribute & Withdraw)",
     WITHDRAW: "Withdraw Only",
     IDO_OVER: "Concluded",
-    ESCROW_OVER: "Withdrawn USDC Unlocked",
   };
 
   return mapping[phase];
@@ -138,21 +131,20 @@ export const Phaser: FC = () => {
           <Heading size="sm" mb="2">
             {displayPhase("UNRESTRICTED")}
           </Heading>
-          In this phase, you can both contribute to the pool, and withdraw, if
-          you change your mind. But the withdrawned USDC will be locked until
-          the last phase, so think carefully.
+          In this phase, you can both contribute to the pool to get your HKV
+          shares and, if you change your mind, you can always withdraw.
           <Divider my={5} />
           <Heading size="sm" mb="2">
             {displayPhase("WITHDRAW")}
           </Heading>
+          Now, there will be some restriction on withdrawal. You can only
+          withdraw once, and the amount you can withdraw will be decreasing
+          linearly over time.
           <Divider my={5} />
           <Heading size="sm" mb="2">
             {displayPhase("IDO_OVER")}
           </Heading>
-          <Divider my={5} />
-          <Heading size="sm" mb="2">
-            {displayPhase("ESCROW_OVER")}
-          </Heading>
+          IDO is concluded, you can now claim your HKV!
         </Info>
       </Flex>
       <Divider my="1em" />
@@ -165,7 +157,10 @@ export const Phaser: FC = () => {
               {phases.map((p) => {
                 const pText = displayPhase(p);
 
-                if (phases.indexOf(p) < phases.indexOf(phaseInfo.phase)) {
+                if (
+                  phases.indexOf(p) < phases.indexOf(phaseInfo.phase) ||
+                  phaseInfo.phase === "IDO_OVER"
+                ) {
                   return (
                     <Text fontSize="xs" color="whiteAlpha.400">
                       <CheckCircleIcon mr="1em" /> {pText}
@@ -199,7 +194,7 @@ export const Phaser: FC = () => {
                 }
               })}
             </Stack>
-            {phaseInfo.phase !== "ESCROW_OVER" ? (
+            {phaseInfo.phase !== "IDO_OVER" ? (
               <Center>
                 <CountdownT
                   key={phaseInfo.phase}

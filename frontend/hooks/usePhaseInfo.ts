@@ -3,12 +3,7 @@ import { BN } from "@project-serum/anchor";
 import { useState } from "react";
 import { useIdoAccount } from "./useIdoAccount";
 
-export type Phase =
-  | "PRE_IDO"
-  | "UNRESTRICTED"
-  | "WITHDRAW"
-  | "IDO_OVER"
-  | "ESCROW_OVER";
+export type Phase = "PRE_IDO" | "UNRESTRICTED" | "WITHDRAW" | "IDO_OVER";
 
 export const usePhaseInfo = (interval = 100) => {
   const { data, error } = useIdoAccount();
@@ -19,7 +14,7 @@ export const usePhaseInfo = (interval = 100) => {
   });
 
   const upcomingMark = (t: BN) => {
-    const marks = ["startIdo", "endDeposits", "endIdo", "endEscrow"];
+    const marks = ["startIdo", "endDeposits", "endIdo"];
 
     if (data) {
       for (let m of marks) {
@@ -49,8 +44,7 @@ export const usePhaseInfo = (interval = 100) => {
     startIdo: "PRE_IDO",
     endDeposits: "UNRESTRICTED",
     endIdo: "WITHDRAW",
-    endEscrow: "IDO_OVER",
-    noNextMark: "ESCROW_OVER",
+    noNextMark: "IDO_OVER",
   };
 
   return {

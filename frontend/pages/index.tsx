@@ -79,7 +79,7 @@ const Home: NextPage = () => {
             <Box>
               <Glass>
                 <Heading as="h2" size="md">
-                  My Dashboard
+                  My IDO Dashboard
                 </Heading>
                 <Divider my="1em" />
                 <Glass>

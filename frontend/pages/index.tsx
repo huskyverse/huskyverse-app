@@ -74,12 +74,6 @@ const Home: NextPage = () => {
   return (
     <Constraint>
       <Grid templateColumns="repeat(5, 1fr)" gap={8} width="100%">
-        <GridItem colSpan={2}>
-          <Box>
-            <Phaser />
-            <Stats />
-          </Box>
-        </GridItem>
         <GridItem colSpan={3}>
           <Box>
             <Box>
@@ -139,6 +133,13 @@ const Home: NextPage = () => {
                 </Glass>
               </Glass>
             </Box>
+          </Box>
+        </GridItem>
+
+        <GridItem colSpan={2}>
+          <Box>
+            <Phaser />
+            <Stats />
           </Box>
         </GridItem>
       </Grid>

@@ -4,7 +4,8 @@ export const Constraint: React.FC = (props) => (
   <Center width="100%">
     <Flex
       mx={{ sm: "1em", md: "2em", lg: "6em" }}
-      py="10"
+      pt="10"
+      pb="0"
       maxWidth="100em"
       width="100%"
     >

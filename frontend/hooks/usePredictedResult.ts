@@ -35,6 +35,8 @@ export const usePredictedResult = () => {
 
   const w = useWallet();
 
+  const errZero = new Error("redeemable supply is 0");
+
   useEffect(() => {
     redeemable.mutate();
     poolUsdc.mutate();
@@ -52,7 +54,7 @@ export const usePredictedResult = () => {
     const redeemableSupplyBN = new BN(redeemableMint.data.supply);
 
     if (redeemableSupplyBN.isZero()) {
-      return;
+      return { resultedHkv: errZero, price: errZero };
     }
 
     // increase the number size to handle small number size
@@ -73,4 +75,7 @@ export const usePredictedResult = () => {
 
     return { price, resultedHkv };
   }
+
+  const errMissingData = new Error("missing data");
+  return { resultedHkv: errMissingData, price: errMissingData };
 };

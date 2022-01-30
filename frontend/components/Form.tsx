@@ -1,7 +1,7 @@
 import {
   Box,
   Button,
-  Container,
+  Text,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -37,13 +37,15 @@ import {
 import { BN, web3 } from "@project-serum/anchor";
 
 import { useIdoAccount } from "../hooks/useIdoAccount";
-import { useEffect, useRef, useState } from "react";
+import { FC, ReactElement, useEffect, useRef, useState } from "react";
 import { animate } from "framer-motion";
 import {
   usePredictedResult,
   useRedeemableMint,
 } from "../hooks/usePredictedResult";
 import { Glass } from "./Glass";
+import { HkvLogo } from "./CoinsLogo";
+import { InfoIcon, InfoOutlineIcon, LockIcon } from "@chakra-ui/icons";
 
 function Counter({ value }: { value: string }) {
   const nodeRef = useRef<HTMLSpanElement>(null);
@@ -78,7 +80,7 @@ export const Balance = ({
   prefix,
 }: {
   token: IDOToken;
-  prefix: string;
+  prefix: ReactElement | string;
 }) => {
   const { data, error } = useTokenBalance(token);
   const { wallet } = useWallet();
@@ -98,22 +100,62 @@ export const Balance = ({
   );
 };
 
-export const PredictedResult = () => {
+export const Price = () => {
   const res = usePredictedResult();
-  const { price, resultedHkv } = res || {};
+  const { wallet } = useWallet();
+  const { price } = res || {};
+  return (
+    <Stat>
+      <StatLabel>Price (HKV/USDC)</StatLabel>
+      <Skeleton isLoaded={!!res || !wallet}>
+        <StatNumber>
+          {price instanceof Error ? (
+            "-"
+          ) : price ? (
+            <Counter value={price} />
+          ) : (
+            "..."
+          )}
+        </StatNumber>
+      </Skeleton>
+    </Stat>
+  );
+};
+
+export const PredictedHKV = () => {
+  const res = usePredictedResult();
+  const { wallet } = useWallet();
+  const { resultedHkv } = res || {};
+  return (
+    <Stat>
+      <StatLabel>
+        Claimable{" "}
+        <Text as="sup">
+          [HKV <HkvLogo />]
+        </Text>{" "}
+        **
+        {/* TODO: add more info and only shows when it's not concluded */}
+      </StatLabel>
+      <Skeleton isLoaded={!!res || !wallet}>
+        <StatNumber>
+          {resultedHkv instanceof Error ? (
+            "-"
+          ) : resultedHkv ? (
+            <Counter value={resultedHkv} />
+          ) : (
+            "..."
+          )}
+        </StatNumber>
+      </Skeleton>
+    </Stat>
+  );
+};
+
+export const PredictedResult = () => {
   return (
     <Glass>
       <StatGroup>
-        <Stat>
-          <StatLabel>Price</StatLabel>
-          <StatNumber>{price ? <Counter value={price} /> : "..."}</StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>You will get</StatLabel>
-          <StatNumber>
-            {resultedHkv ? <Counter value={resultedHkv} /> : "..."}
-          </StatNumber>
-        </Stat>
+        <Price />
       </StatGroup>
     </Glass>
   );
@@ -205,6 +247,13 @@ export const Deposit = () => {
             type="submit"
           >
             Contribute
+            {disabled ? (
+              <Text as="sub">
+                <LockIcon />
+              </Text>
+            ) : (
+              ""
+            )}
           </Button>
         </FormControl>
       </form>
@@ -316,10 +365,15 @@ export const Withdraw = () => {
             w="full"
             type="submit"
           >
-            Withdraw
+            Withdraw Contributed USDC
+            {disabled ? (
+              <Text as="sub">
+                <LockIcon />
+              </Text>
+            ) : (
+              ""
+            )}
           </Button>
-          {/* TODO: Check if this is correct date time for Locale */}
-          <sub>locked until .. {endEscrowTime.data?.toLocaleString()}</sub>
         </FormControl>
       </form>
     </Box>
@@ -332,7 +386,7 @@ export const ClaimHKV = () => {
   const wallet = useAnchorWallet();
   const currentPhaseInfo = usePhaseInfo();
   const { idoPool, provider } = useIdoPool();
-  const activePhases: Phase[] = ["IDO_OVER", "ESCROW_OVER"];
+  const activePhases: Phase[] = ["IDO_OVER"];
   const disabled =
     !activePhases.some(
       (activePhase) => currentPhaseInfo.phase === activePhase
@@ -383,7 +437,14 @@ export const ClaimHKV = () => {
           w="full"
           type="submit"
         >
-          Claim All HKV
+          Claim HKV{" "}
+          {disabled ? (
+            <Text as="sub">
+              <LockIcon />
+            </Text>
+          ) : (
+            ""
+          )}
         </Button>
       </form>
     </Box>

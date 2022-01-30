@@ -17,9 +17,9 @@ export const useIdoAccount = () => {
       return {
         idoTimes: {
           startIdo: s.add(new BN(10)),
-          endDeposits: s.add(new BN(100)),
-          endIdo: s.add(new BN(150)),
-          endEscrow: s.add(new BN(200)),
+          endDeposits: s.add(new BN(20)),
+          endIdo: s.add(new BN(30)),
+          endEscrow: s.add(new BN(40)),
         },
       };
     }

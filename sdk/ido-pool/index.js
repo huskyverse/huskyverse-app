@@ -46,15 +46,6 @@ module.exports = (provider, program, idoName) => {
         ],
         program.programId
       ),
-    escrowUsdc: (userPubkey) =>
-      anchor.web3.PublicKey.findProgramAddress(
-        [
-          userPubkey.toBuffer(),
-          Buffer.from(idoName),
-          Buffer.from("escrow_usdc"),
-        ],
-        program.programId
-      ),
   };
 
   return {
@@ -210,28 +201,5 @@ module.exports = (provider, program, idoName) => {
         }
       );
     },
-
-    withdrawFromEscrow: async (
-      { usdcMint },
-      userUsdc,
-      userPublicKey,
-      amount
-    ) => {
-      const [idoAccount] = await accounts.ido();
-      const [escrowUsdc] = await accounts.escrowUsdc(userPublicKey);
-
-      await program.rpc.withdrawFromEscrow(amount, {
-        accounts: {
-          payer: userPublicKey,
-          userAuthority: userPublicKey,
-          userUsdc,
-          escrowUsdc,
-          idoAccount,
-          usdcMint,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        },
-      });
-    },
-    accounts,
   };
 };

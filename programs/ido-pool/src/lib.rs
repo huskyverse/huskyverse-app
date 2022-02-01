@@ -104,12 +104,6 @@ pub mod ido_pool {
     }
 
     #[access_control(withdraw_phase(&ctx.accounts.ido_account))]
-    pub fn init_escrow_usdc(ctx: Context<InitEscrowUsdc>) -> ProgramResult {
-        msg!("INIT ESCROW USDC");
-        Ok(())
-    }
-
-    #[access_control(withdraw_phase(&ctx.accounts.ido_account))]
     pub fn exchange_redeemable_for_usdc(
         ctx: Context<ExchangeRedeemableForUsdc>,
         amount: u64,
@@ -137,8 +131,6 @@ pub mod ido_pool {
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
         token::burn(cpi_ctx, amount)?;
 
-        // TODO_NO_ESCROW:1.3 change escrow_usdc to user_usdc
-        // Transfer USDC from pool account to the user's escrow account -> nah, userUsdc dee kwa.
         let cpi_accounts = Transfer {
             from: ctx.accounts.pool_usdc.to_account_info(),
             to: ctx.accounts.user_usdc.to_account_info(),
@@ -342,31 +334,6 @@ pub struct ExchangeUsdcForRedeemable<'info> {
     pub pool_usdc: Box<Account<'info, TokenAccount>>,
     // Programs and Sysvars
     pub token_program: Program<'info, Token>,
-}
-
-#[derive(Accounts)]
-pub struct InitEscrowUsdc<'info> {
-    // User Accounts
-    #[account(mut)]
-    pub user_authority: Signer<'info>,
-    #[account(init,
-        token::mint = usdc_mint,
-        token::authority = ido_account,
-        seeds =  [user_authority.key().as_ref(),
-            ido_account.ido_name.as_ref().trim_ascii_whitespace(),
-            b"escrow_usdc"],
-        bump,
-        payer = user_authority)]
-    pub escrow_usdc: Box<Account<'info, TokenAccount>>,
-    #[account(seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace()],
-        bump = ido_account.bumps.ido_account,
-        has_one = usdc_mint)]
-    pub ido_account: Box<Account<'info, IdoAccount>>,
-    pub usdc_mint: Box<Account<'info, Mint>>,
-    // Programs and Sysvars
-    pub system_program: Program<'info, System>,
-    pub token_program: Program<'info, Token>,
-    pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]

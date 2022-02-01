@@ -8,7 +8,6 @@ import { useIdoPool } from "./useIdoPool";
 export type IDOToken =
   | "usdc"
   | "redeemable"
-  | "escrow"
   | "pool_usdc"
   | "pool_huskyverse"
   | "hkv";
@@ -24,8 +23,6 @@ export const useTokenBalance = (token: IDOToken) => {
 
       if (token === "redeemable") {
         acc = (await idoPool.accounts.userRedeemable(publicKey))[0];
-      } else if (token === "escrow") {
-        acc = (await idoPool.accounts.escrowUsdc(publicKey))[0];
       } else if (token === "pool_usdc") {
         acc = (await idoPool.accounts.poolUsdc())[0];
       } else if (token === "pool_huskyverse") {

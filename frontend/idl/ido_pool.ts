@@ -179,47 +179,6 @@ const idl: Idl = {
       ],
     },
     {
-      name: "initEscrowUsdc",
-      accounts: [
-        {
-          name: "userAuthority",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "escrowUsdc",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "idoAccount",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "usdcMint",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "rent",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
-    },
-    {
       name: "exchangeRedeemableForUsdc",
       accounts: [
         {

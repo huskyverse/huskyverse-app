@@ -261,23 +261,13 @@ export const Deposit = () => {
   );
 };
 
-const useIdoTime = (idoTime: string) => {
-  const _ido = useIdoAccount();
-
-  return {
-    ..._ido,
-    data: new Date(_ido.data?.idoTimes[idoTime].muln(1000).toNumber()),
-  };
-};
-
 // NOTE: USDC here is represented in terms of redeemable
 export const Withdraw = () => {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
   const wallet = useAnchorWallet();
   const currentPhaseInfo = usePhaseInfo();
-  const { idoPool } = useIdoPool();
-  const endEscrowTime = useIdoTime("endEscrow");
+  const { idoPool, provider } = useIdoPool();
 
   // >>> TOUCHED
   const activePhases: Phase[] = ["UNRESTRICTED", "WITHDRAW"];
@@ -288,7 +278,7 @@ export const Withdraw = () => {
   // <<< TOUCHED
 
   const redeemable = useTokenBalance("redeemable");
-  const escrow = useTokenBalance("escrow");
+  const usdc = useTokenBalance("usdc");
   const poolUsdc = useTokenBalance("pool_usdc");
   const redeemableMint = useRedeemableMint();
 
@@ -307,20 +297,22 @@ export const Withdraw = () => {
     <Box my="5">
       <form
         onSubmit={handleSubmit(async (v) => {
-          if (connection && publicKey && idoPool && wallet) {
+          if (connection && publicKey && idoPool && wallet && provider) {
             const usdcMint = mintPubkey("usdc");
             const huskyverseMint = mintPubkey("hkv");
 
             const amount = toBN(v.withdrawalAmount, "usdc");
+            const ata = await getOrCreateATA(provider, publicKey, "usdc");
 
             await idoPool.exchangeRedeemableForUsdc(
               { usdcMint, huskyverseMint },
               publicKey,
+              ata,
               amount
             );
 
             await redeemable.mutate();
-            await escrow.mutate();
+            await usdc.mutate();
             await poolUsdc.mutate();
             await redeemableMint.mutate();
             reset({ withdrawalAmount: "" });

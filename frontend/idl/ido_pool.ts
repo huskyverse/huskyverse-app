@@ -228,7 +228,7 @@ const idl: Idl = {
           isSigner: true,
         },
         {
-          name: "escrowUsdc",
+          name: "userUsdc",
           isMut: true,
           isSigner: false,
         },
@@ -372,52 +372,6 @@ const idl: Idl = {
       ],
       args: [],
     },
-    {
-      name: "withdrawFromEscrow",
-      accounts: [
-        {
-          name: "payer",
-          isMut: false,
-          isSigner: true,
-        },
-        {
-          name: "userAuthority",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "userUsdc",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "escrowUsdc",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "idoAccount",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "usdcMint",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [
-        {
-          name: "amount",
-          type: "u64",
-        },
-      ],
-    },
   ],
   accounts: [
     {
@@ -491,10 +445,6 @@ const idl: Idl = {
           },
           {
             name: "endIdo",
-            type: "i64",
-          },
-          {
-            name: "endEscrow",
             type: "i64",
           },
         ],
@@ -582,9 +532,6 @@ const idl: Idl = {
       msg: "Given nonce is invalid",
     },
   ],
-  // metadata: {
-  //   address: "2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz",
-  // },
 };
 
 export default idl;

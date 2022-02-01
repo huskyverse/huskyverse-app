@@ -141,7 +141,7 @@ pub mod ido_pool {
         // Transfer USDC from pool account to the user's escrow account -> nah, userUsdc dee kwa.
         let cpi_accounts = Transfer {
             from: ctx.accounts.pool_usdc.to_account_info(),
-            to: ctx.accounts.escrow_usdc.to_account_info(),
+            to: ctx.accounts.user_usdc.to_account_info(),
             authority: ctx.accounts.ido_account.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
@@ -230,47 +230,6 @@ pub mod ido_pool {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
         token::transfer(cpi_ctx, ctx.accounts.pool_usdc.amount)?;
-
-        Ok(())
-    }
-
-    #[access_control(escrow_over(&ctx.accounts.ido_account))]
-    pub fn withdraw_from_escrow(ctx: Context<WithdrawFromEscrow>, amount: u64) -> ProgramResult {
-        msg!("WITHDRAW FROM ESCROW");
-        // While token::transfer will check this, we prefer a verbose err msg.
-        if ctx.accounts.escrow_usdc.amount < amount {
-            return Err(ErrorCode::LowUsdc.into());
-        }
-
-        let ido_name = ctx.accounts.ido_account.ido_name.as_ref();
-        let seeds = &[
-            ido_name.trim_ascii_whitespace(),
-            &[ctx.accounts.ido_account.bumps.ido_account],
-        ];
-        let signer = &[&seeds[..]];
-
-        // Transfer USDC from user's escrow account to user's USDC account.
-        let cpi_accounts = Transfer {
-            from: ctx.accounts.escrow_usdc.to_account_info(),
-            to: ctx.accounts.user_usdc.to_account_info(),
-            authority: ctx.accounts.ido_account.to_account_info(),
-        };
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-        token::transfer(cpi_ctx, amount)?;
-
-        // Send rent back to user if account is empty
-        ctx.accounts.escrow_usdc.reload()?;
-        if ctx.accounts.escrow_usdc.amount == 0 {
-            let cpi_accounts = CloseAccount {
-                account: ctx.accounts.escrow_usdc.to_account_info(),
-                destination: ctx.accounts.user_authority.clone(),
-                authority: ctx.accounts.ido_account.to_account_info(),
-            };
-            let cpi_program = ctx.accounts.token_program.to_account_info();
-            let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-            token::close_account(cpi_ctx)?;
-        }
 
         Ok(())
     }
@@ -414,14 +373,10 @@ pub struct InitEscrowUsdc<'info> {
 pub struct ExchangeRedeemableForUsdc<'info> {
     // User Accounts
     pub user_authority: Signer<'info>,
-    // TODO_NO_ESCROW:1.2 change escrow_usdc to user_usdc
-    // make sure that the token account is own by the signer
     #[account(mut,
-        seeds = [user_authority.key().as_ref(),
-            ido_account.ido_name.as_ref().trim_ascii_whitespace(),
-            b"escrow_usdc"],
-        bump)]
-    pub escrow_usdc: Box<Account<'info, TokenAccount>>,
+        constraint = user_usdc.owner == user_authority.key(),
+        constraint = user_usdc.mint == usdc_mint.key())]
+    pub user_usdc: Box<Account<'info, TokenAccount>>,
     #[account(mut,
         seeds = [user_authority.key().as_ref(),
             ido_account.ido_name.as_ref().trim_ascii_whitespace(),
@@ -510,34 +465,6 @@ pub struct WithdrawPoolUsdc<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-#[derive(Accounts)]
-pub struct WithdrawFromEscrow<'info> {
-    // User does not have to sign, this allows anyone to redeem on their behalf
-    // and prevents forgotten / leftover USDC in the IDO pool.
-    pub payer: Signer<'info>,
-    // User Accounts
-    #[account(mut)]
-    pub user_authority: AccountInfo<'info>,
-    #[account(mut,
-        constraint = user_usdc.owner == user_authority.key(),
-        constraint = user_usdc.mint == usdc_mint.key())]
-    pub user_usdc: Box<Account<'info, TokenAccount>>,
-    #[account(mut,
-        seeds = [user_authority.key().as_ref(),
-            ido_account.ido_name.as_ref().trim_ascii_whitespace(),
-            b"escrow_usdc"],
-        bump)]
-    pub escrow_usdc: Box<Account<'info, TokenAccount>>,
-    // IDO Accounts
-    #[account(seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace()],
-        bump = ido_account.bumps.ido_account,
-        has_one = usdc_mint)]
-    pub ido_account: Box<Account<'info, IdoAccount>>,
-    pub usdc_mint: Box<Account<'info, Mint>>,
-    // Programs and Sysvars
-    pub token_program: Program<'info, Token>,
-}
-
 #[account]
 #[derive(Default)]
 pub struct IdoAccount {
@@ -560,7 +487,6 @@ pub struct IdoTimes {
     pub start_ido: i64,
     pub end_deposits: i64,
     pub end_ido: i64,
-    pub end_escrow: i64,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Default, Clone)]
@@ -605,9 +531,7 @@ fn validate_ido_times(ido_times: IdoTimes) -> ProgramResult {
     if ido_times.start_ido <= clock.unix_timestamp {
         return Err(ErrorCode::IdoFuture.into());
     }
-    if !(ido_times.start_ido < ido_times.end_deposits
-        && ido_times.end_deposits < ido_times.end_ido
-        && ido_times.end_ido < ido_times.end_escrow)
+    if !(ido_times.start_ido < ido_times.end_deposits && ido_times.end_deposits < ido_times.end_ido)
     {
         return Err(ErrorCode::SeqTimes.into());
     }
@@ -641,14 +565,6 @@ fn ido_over(ido_account: &IdoAccount) -> ProgramResult {
     let clock = Clock::get()?;
     if clock.unix_timestamp <= ido_account.ido_times.end_ido {
         return Err(ErrorCode::IdoNotOver.into());
-    }
-    Ok(())
-}
-
-fn escrow_over(ido_account: &IdoAccount) -> ProgramResult {
-    let clock = Clock::get()?;
-    if clock.unix_timestamp <= ido_account.ido_times.end_escrow {
-        return Err(ErrorCode::EscrowNotOver.into());
     }
     Ok(())
 }

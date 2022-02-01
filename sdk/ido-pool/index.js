@@ -158,45 +158,18 @@ module.exports = (provider, program, idoName) => {
     exchangeRedeemableForUsdc: async (
       { usdcMint, huskyverseMint } = _deps,
       userPubKey,
+      userUsdc,
       withdrawalAmount
     ) => {
       const [idoAccount] = await accounts.ido();
       const [redeemableMint] = await accounts.redeemableMint();
       const [poolUsdc] = await accounts.poolUsdc();
       const [userRedeemable] = await accounts.userRedeemable(userPubKey);
-      const [escrowUsdc] = await accounts.escrowUsdc(userPubKey);
-
-      let instructions = [];
-
-      // TODO_NO_ESCROW:1.1 Init ata instead, has code for that in frontend leaw. so this is no need
-      try {
-        await provider.connection.getTokenAccountBalance(escrowUsdc);
-      } catch (_e) {
-        console.log(
-          "could not find account [escrowUsdc]: ",
-          escrowUsdc.toBase58()
-        );
-        console.log("initializing...");
-        instructions = [
-          program.instruction.initEscrowUsdc({
-            accounts: {
-              userAuthority: userPubKey,
-              escrowUsdc,
-              idoAccount,
-              usdcMint,
-              systemProgram: anchor.web3.SystemProgram.programId,
-              tokenProgram: TOKEN_PROGRAM_ID,
-              rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-            },
-          }),
-        ];
-      }
 
       return await program.rpc.exchangeRedeemableForUsdc(withdrawalAmount, {
         accounts: {
           userAuthority: userPubKey,
-          // TODO_NO_ESCROW:1.2 Change this to userUsdc
-          escrowUsdc,
+          userUsdc,
           userRedeemable,
           idoAccount,
           usdcMint,
@@ -205,7 +178,6 @@ module.exports = (provider, program, idoName) => {
           poolUsdc,
           tokenProgram: TOKEN_PROGRAM_ID,
         },
-        instructions,
       });
     },
     exchangeRedeemableForHuskyverse: async (

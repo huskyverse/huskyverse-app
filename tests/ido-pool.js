@@ -233,24 +233,23 @@ describe("ido-pool", () => {
   const firstWithdrawal = new anchor.BN(2_000_000);
 
   it("Exchanges user Redeemable tokens for USDC", async () => {
+    prevUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
     await idoPool.exchangeRedeemableForUsdc(
       deps,
       provider.wallet.publicKey,
+      userUsdc,
       firstWithdrawal
     );
 
     const [poolUsdc] = await idoPool.accounts.poolUsdc();
-    const [escrowUsdc] = await idoPool.accounts.escrowUsdc(
-      provider.wallet.publicKey
-    );
 
     totalPoolUsdc = totalPoolUsdc.sub(firstWithdrawal);
     poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
     assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
-    escrowUsdcAccount = await getTokenAccount(provider, escrowUsdc);
 
-    // TODO_NO_ESCROW:1 check userUsdc account instead
-    assert.ok(escrowUsdcAccount.amount.eq(firstWithdrawal));
+    currUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
+
+    assert.ok(currUserUsdcAmount.sub(prevUserUsdcAmount).eq(firstWithdrawal));
   });
 
   it("Exchanges user Redeemable tokens for huskyverse", async () => {
@@ -347,41 +346,9 @@ describe("ido-pool", () => {
     assert.ok(idoAuthorityUsdcAccount.amount.eq(totalPoolUsdc));
   });
 
-  // TODO_NO_ESCROW:2 REMOVE THIS
-  it("Withdraws USDC from the escrow account after waiting period is over", async () => {
-    const usdcMint = deps.usdcMint;
-    // Wait until the escrow period is over.
-    if (Date.now() < idoTimes.endEscrow.toNumber() * 1000 + 1000) {
-      await sleep(idoTimes.endEscrow.toNumber() * 1000 - Date.now() + 4000);
-    }
-
-    const [idoAccount] = await idoPool.accounts.ido();
-    const [escrowUsdc] = await idoPool.accounts.escrowUsdc(
-      provider.wallet.publicKey
-    );
-
-    await program.rpc.withdrawFromEscrow(firstWithdrawal, {
-      accounts: {
-        payer: provider.wallet.publicKey,
-        userAuthority: provider.wallet.publicKey,
-        userUsdc,
-        escrowUsdc,
-        idoAccount,
-        usdcMint,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      },
-    });
-
-    const userUsdcAccount = await getTokenAccount(provider, userUsdc);
-    assert.ok(userUsdcAccount.amount.eq(firstWithdrawal));
-  });
-
   function IdoTimes() {
     this.startIdo;
     this.endDeposts;
     this.endIdo;
-
-    // TODO_NO_ESCROW:3 Remove this
-    this.endEscrow;
   }
 });

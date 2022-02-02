@@ -1,7 +1,7 @@
 import { Program, Provider, setProvider, web3 } from "@project-serum/anchor";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
-import idoPoolIdl from "../idl/ido_pool";
 import IDOPool from "ido-pool";
+import idoPoolIdl from "../idl/ido_pool";
 export const useIdoPool = () => {
   const { connection } = useConnection();
   const wallet = useAnchorWallet();

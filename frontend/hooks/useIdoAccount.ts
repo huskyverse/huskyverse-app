@@ -1,10 +1,9 @@
-import { useEffect } from "react";
-
-import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
-import useSWR from "swr";
 import { BN } from "@project-serum/anchor";
-import { useMockData } from "./useMockData";
+import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
+import { useEffect } from "react";
+import useSWR from "swr";
 import { useIdoPool } from "./useIdoPool";
+import { useMockData } from "./useMockData";
 
 export const useIdoAccount = () => {
   const { connection } = useConnection();

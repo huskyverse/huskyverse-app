@@ -1,6 +1,10 @@
-import { FC, useState } from "react";
-
-import CountdownT from "react-countdown";
+import {
+  CheckCircleIcon,
+  ChevronRightIcon,
+  QuestionIcon,
+  QuestionOutlineIcon,
+  TimeIcon,
+} from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -23,16 +27,11 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { motion } from "framer-motion";
+import { FC, useState } from "react";
+import CountdownT from "react-countdown";
 import { Phase, usePhaseInfo } from "../hooks/usePhaseInfo";
 import { Glass } from "./Glass";
-import {
-  CheckCircleIcon,
-  ChevronRightIcon,
-  QuestionIcon,
-  QuestionOutlineIcon,
-  TimeIcon,
-} from "@chakra-ui/icons";
-import { motion } from "framer-motion";
 
 const phases: Phase[] = ["PRE_IDO", "UNRESTRICTED", "WITHDRAW", "IDO_OVER"];
 

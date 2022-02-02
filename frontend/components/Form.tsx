@@ -1,7 +1,7 @@
+import { LockIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  Text,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -14,18 +14,23 @@ import {
   StatGroup,
   StatLabel,
   StatNumber,
+  Text,
 } from "@chakra-ui/react";
-
-import { useForm } from "react-hook-form";
-
-import { Phase, usePhaseInfo } from "../hooks/usePhaseInfo";
-
+import { BN } from "@project-serum/anchor";
 import {
   useAnchorWallet,
   useConnection,
   useWallet,
 } from "@solana/wallet-adapter-react";
+import { animate } from "framer-motion";
+import { ReactElement, useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useIdoPool } from "../hooks/useIdoPool";
+import { Phase, usePhaseInfo } from "../hooks/usePhaseInfo";
+import {
+  usePredictedResult,
+  useRedeemableMint,
+} from "../hooks/usePredictedResult";
 import { IDOToken, useTokenBalance } from "../hooks/userTokenBalance";
 import {
   getATA,
@@ -34,18 +39,8 @@ import {
   toBN,
   tokenDecimals,
 } from "../lib/token";
-import { BN, web3 } from "@project-serum/anchor";
-
-import { useIdoAccount } from "../hooks/useIdoAccount";
-import { FC, ReactElement, useEffect, useRef, useState } from "react";
-import { animate } from "framer-motion";
-import {
-  usePredictedResult,
-  useRedeemableMint,
-} from "../hooks/usePredictedResult";
-import { Glass } from "./Glass";
 import { HkvLogo } from "./CoinsLogo";
-import { InfoIcon, InfoOutlineIcon, LockIcon } from "@chakra-ui/icons";
+import { Glass } from "./Glass";
 
 function Counter({ value }: { value: string }) {
   const nodeRef = useRef<HTMLSpanElement>(null);

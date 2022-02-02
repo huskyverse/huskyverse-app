@@ -1,4 +1,4 @@
-import { Box, Center, Flex } from "@chakra-ui/react";
+import { Center, Flex } from "@chakra-ui/react";
 
 export const Constraint: React.FC = (props) => (
   <Center width="100%">

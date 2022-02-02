@@ -1,7 +1,6 @@
 import { BN } from "@project-serum/anchor";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useEffect } from "react";
-
 import useSWR from "swr";
 import { toDecimalString } from "../lib/format";
 import { tokenDecimals } from "../lib/token";

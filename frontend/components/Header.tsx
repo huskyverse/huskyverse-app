@@ -1,10 +1,10 @@
-import React, { FC, ReactNode } from "react";
+import { Box, Spacer } from "@chakra-ui/layout";
+import { Image } from "@chakra-ui/react";
 import {
   WalletModalProvider,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
-import { Box, Center, Container, Flex, Spacer } from "@chakra-ui/layout";
-import { Image } from "@chakra-ui/react";
+import React, { FC } from "react";
 import { Constraint } from "./Constraint";
 
 export const Header: FC = () => {

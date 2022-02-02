@@ -201,5 +201,6 @@ module.exports = (provider, program, idoName) => {
         }
       );
     },
+    accounts,
   };
 };

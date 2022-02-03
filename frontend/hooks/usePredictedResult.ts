@@ -52,7 +52,7 @@ export const usePredictedResult = () => {
     const poolHuskyverseBN = new BN(poolHuskyverse.data.amount);
     const redeemableSupplyBN = new BN(redeemableMint.data.supply);
 
-    if (redeemableSupplyBN.isZero()) {
+    if (redeemableSupplyBN.isZero() || poolHuskyverseBN.isZero()) {
       return { resultedHkv: errZero, price: errZero };
     }
 

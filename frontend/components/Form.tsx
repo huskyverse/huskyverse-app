@@ -119,6 +119,7 @@ export const Price = () => {
 
 export const PredictedHKV = () => {
   const res = usePredictedResult();
+  const redeemable = useTokenBalance("redeemable");
   const { wallet } = useWallet();
   const { resultedHkv } = res || {};
   return (
@@ -129,11 +130,10 @@ export const PredictedHKV = () => {
           [HKV <HkvLogo />]
         </Text>{" "}
         **
-        {/* TODO: add more info and only shows when it's not concluded */}
       </StatLabel>
       <Skeleton isLoaded={!!res || !wallet}>
         <StatNumber>
-          {resultedHkv instanceof Error ? (
+          {resultedHkv instanceof Error || redeemable.error ? (
             "-"
           ) : resultedHkv ? (
             <Counter value={resultedHkv} />
@@ -410,12 +410,11 @@ export const ClaimHKV = () => {
               new BN(amount),
               undefined
             );
-
-            await hkv.mutate();
-            await redeemable.mutate();
-            await poolHuskyverse.mutate();
-            await redeemableMint.mutate();
           }
+          await hkv.mutate();
+          await redeemable.mutate();
+          await poolHuskyverse.mutate();
+          await redeemableMint.mutate();
         })}
       >
         <Button

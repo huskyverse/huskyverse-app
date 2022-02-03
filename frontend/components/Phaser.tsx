@@ -161,7 +161,7 @@ export const Phaser: FC = () => {
                   phaseInfo.phase === "IDO_OVER"
                 ) {
                   return (
-                    <Text fontSize="xs" color="whiteAlpha.400">
+                    <Text key={p} fontSize="xs" color="whiteAlpha.400">
                       <CheckCircleIcon mr="1em" /> {pText}
                     </Text>
                   );
@@ -169,7 +169,7 @@ export const Phaser: FC = () => {
 
                 if (p === phaseInfo.phase) {
                   return (
-                    <Heading size="sm" py="0.5em">
+                    <Heading key={p} size="sm" py="0.5em">
                       <MotionChevronRightIcon
                         ml="-5px"
                         animate={{ x: [0, 5, 0] }}
@@ -186,7 +186,7 @@ export const Phaser: FC = () => {
 
                 if (phases.indexOf(p) > phases.indexOf(phaseInfo.phase)) {
                   return (
-                    <Text fontSize="xs" color="whiteAlpha.400">
+                    <Text key={p} fontSize="xs" color="whiteAlpha.400">
                       <TimeIcon mr="1em" /> {pText}
                     </Text>
                   );

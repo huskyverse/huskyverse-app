@@ -3,9 +3,7 @@
 // #![warn(clippy::all)]
 
 use anchor_lang::prelude::*;
-use anchor_spl::token::{
-    self, Burn, CloseAccount, Mint, MintTo, Token, TokenAccount, Transfer,
-};
+use anchor_spl::token::{self, Burn, CloseAccount, Mint, MintTo, Token, TokenAccount, Transfer};
 
 use std::ops::Deref;
 
@@ -136,16 +134,16 @@ pub mod ido_pool {
                 .checked_sub(ctx.accounts.ido_account.ido_times.end_deposits)
                 .unwrap();
 
-            let ratio = clock
-                .unix_timestamp
-                .checked_sub(ctx.accounts.ido_account.ido_times.end_deposits)
+            ctx.accounts
+                .ido_account
+                .ido_times
+                .end_ido
+                .checked_sub(clock.unix_timestamp)
+                .unwrap()
+                .checked_mul(ctx.accounts.user_redeemable.amount as i64)
                 .unwrap()
                 .checked_div(withdraw_only_period)
-                .unwrap();
-
-            (ratio as u64)
-                .checked_mul(ctx.accounts.user_redeemable.amount)
-                .unwrap()
+                .unwrap() as u64
         };
 
         let withdraw_amount = if max_withdraw { max_redeemable } else { amount };

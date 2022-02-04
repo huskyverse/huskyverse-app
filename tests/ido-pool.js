@@ -234,8 +234,8 @@ describe("ido-pool", () => {
     assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
   });
 
-  const firstUserTotalWithdraw = new anchor.BN(2_000_000);
-  // describe("Exchanges user Redeemable tokens for USDC", () => {
+  let firstUserTotalWithdraw = new anchor.BN(2_000_000);
+
   it("has no amount limit during unrestricted phase", async () => {
     // first withdraw
     const fullWithdrawal = firstDeposit
@@ -289,7 +289,47 @@ describe("ido-pool", () => {
 
     assert.ok(currUserUsdcAmount.sub(prevUserUsdcAmount).eq(secondWithdrawal));
   })
-  // })
+
+  it("Can withdraw only once during linear decrease withdraw phase", async () => {
+    const withdrawAmount = new anchor.BN(100_000);
+
+    prevUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
+
+    // Wait until the IDO has opened.
+    if (Date.now() < idoTimes.endDeposits.toNumber() * 1000) {
+      await sleep(idoTimes.endDeposits.toNumber() * 1000 - Date.now() + 2000);
+    }
+
+    await idoPool.exchangeRedeemableForUsdc(
+      deps,
+      provider.wallet.publicKey,
+      userUsdc,
+      withdrawAmount
+    );
+
+    const [poolUsdc] = await idoPool.accounts.poolUsdc();
+
+    totalPoolUsdc = totalPoolUsdc.sub(withdrawAmount);
+    poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
+    assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
+
+    currUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
+
+    assert.ok(currUserUsdcAmount.sub(prevUserUsdcAmount).eq(withdrawAmount));
+
+    firstUserTotalWithdraw = firstUserTotalWithdraw.add(withdrawAmount);
+
+    try {
+      await idoPool.exchangeRedeemableForUsdc(
+        deps,
+        provider.wallet.publicKey,
+        userUsdc,
+        withdrawAmount
+      );
+    } catch (err) {
+      assert.ok(err.msg === "Exceed withdraw limit during linear decrease withdraw phase")
+    }
+  })
 
   it("Exchanges user Redeemable tokens for huskyverse", async () => {
     const huskyverseMint = deps.huskyverseMint;

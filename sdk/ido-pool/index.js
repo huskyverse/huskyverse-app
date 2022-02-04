@@ -37,12 +37,22 @@ module.exports = (provider, program, idoName) => {
         program.programId
       ),
 
-    userRedeemable: (userPubkey) =>
+    userRedeemable: (userPubKey) =>
       anchor.web3.PublicKey.findProgramAddress(
         [
-          userPubkey.toBuffer(),
+          userPubKey.toBuffer(),
           Buffer.from(idoName),
           Buffer.from("user_redeemable"),
+        ],
+        program.programId
+      ),
+
+    userWithdrawLinearDecrease: (userPubKey) =>
+      anchor.web3.PublicKey.findProgramAddress(
+        [
+          userPubKey.toBuffer(),
+          Buffer.from(idoName),
+          Buffer.from("user_withdraw_linear_decrease"),
         ],
         program.programId
       ),
@@ -156,8 +166,9 @@ module.exports = (provider, program, idoName) => {
       const [redeemableMint] = await accounts.redeemableMint();
       const [poolUsdc] = await accounts.poolUsdc();
       const [userRedeemable] = await accounts.userRedeemable(userPubKey);
+      const [userWithdrawLinearDecrease] = await accounts.userWithdrawLinearDecrease(userPubKey);
 
-      return await program.rpc.exchangeRedeemableForUsdc(withdrawalAmount, {
+      return await program.rpc.exchangeRedeemableForUsdc(false, withdrawalAmount, {
         accounts: {
           userAuthority: userPubKey,
           userUsdc,
@@ -167,7 +178,10 @@ module.exports = (provider, program, idoName) => {
           redeemableMint,
           huskyverseMint,
           poolUsdc,
+          userWithdrawLinearDecrease,
+          systemProgram: anchor.web3.SystemProgram.programId,
           tokenProgram: TOKEN_PROGRAM_ID,
+          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         },
       });
     },

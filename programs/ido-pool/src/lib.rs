@@ -3,11 +3,13 @@
 // #![warn(clippy::all)]
 
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Burn, CloseAccount, Mint, MintTo, Token, TokenAccount, Transfer};
+use anchor_spl::token::{
+    self, Burn, CloseAccount, Mint, MintTo, Token, TokenAccount, Transfer,
+};
 
 use std::ops::Deref;
 
-declare_id!("2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz");
+declare_id!("HU2fHYFndVc8UX8fJmhK5ea3bC4UfUFLieNh18fEQ6ad");
 
 const DECIMALS: u8 = 6;
 
@@ -106,12 +108,50 @@ pub mod ido_pool {
     #[access_control(withdraw_phase(&ctx.accounts.ido_account))]
     pub fn exchange_redeemable_for_usdc(
         ctx: Context<ExchangeRedeemableForUsdc>,
+        max_withdraw: bool,
         amount: u64,
     ) -> ProgramResult {
         msg!("EXCHANGE REDEEMABLE FOR USDC");
-        // While token::burn will check this, we prefer a verbose err msg.
-        if ctx.accounts.user_redeemable.amount < amount {
-            return Err(ErrorCode::LowRedeemable.into());
+        if ctx.accounts.user_withdraw_linear_decrease.withdrawn {
+            return Err(ErrorCode::ExceedLinearDecreaseWithdrawLimit.into());
+        }
+
+        let clock = Clock::get()?;
+
+        let is_in_unrestricted_phase = match unrestricted_phase(ctx.accounts.ido_account.as_ref()) {
+            Ok(()) => true,
+            _ => false,
+        };
+
+        let max_redeemable = if is_in_unrestricted_phase {
+            ctx.accounts.user_redeemable.amount
+        } else {
+            ctx.accounts.user_withdraw_linear_decrease.withdrawn = true;
+
+            let withdraw_only_period = ctx
+                .accounts
+                .ido_account
+                .ido_times
+                .end_ido
+                .checked_sub(ctx.accounts.ido_account.ido_times.end_deposits)
+                .unwrap();
+
+            let ratio = clock
+                .unix_timestamp
+                .checked_sub(ctx.accounts.ido_account.ido_times.end_deposits)
+                .unwrap()
+                .checked_div(withdraw_only_period)
+                .unwrap();
+
+            (ratio as u64)
+                .checked_mul(ctx.accounts.user_redeemable.amount)
+                .unwrap()
+        };
+
+        let withdraw_amount = if max_withdraw { max_redeemable } else { amount };
+
+        if max_redeemable < withdraw_amount || max_redeemable == 0 {
+            return Err(ErrorCode::ExceedMaxRedeemable.into());
         }
 
         let ido_name = ctx.accounts.ido_account.ido_name.as_ref();
@@ -121,24 +161,23 @@ pub mod ido_pool {
         ];
         let signer = &[&seeds[..]];
 
-        // Burn the user's redeemable tokens.
-        let cpi_accounts = Burn {
-            mint: ctx.accounts.redeemable_mint.to_account_info(),
-            to: ctx.accounts.user_redeemable.to_account_info(),
-            authority: ctx.accounts.ido_account.to_account_info(),
-        };
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-        token::burn(cpi_ctx, amount)?;
+        burn(
+            ctx.accounts.redeemable_mint.as_ref(),
+            ctx.accounts.user_redeemable.as_ref(),
+            ctx.accounts.ido_account.as_ref(),
+            &ctx.accounts.token_program,
+            withdraw_amount,
+            signer,
+        )?;
 
-        let cpi_accounts = Transfer {
-            from: ctx.accounts.pool_usdc.to_account_info(),
-            to: ctx.accounts.user_usdc.to_account_info(),
-            authority: ctx.accounts.ido_account.to_account_info(),
-        };
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-        token::transfer(cpi_ctx, amount)?;
+        transfer(
+            ctx.accounts.pool_usdc.as_ref(),
+            ctx.accounts.user_usdc.as_ref(),
+            ctx.accounts.ido_account.as_ref(),
+            &ctx.accounts.token_program,
+            withdraw_amount,
+            signer,
+        )?;
 
         Ok(())
     }
@@ -225,6 +264,45 @@ pub mod ido_pool {
 
         Ok(())
     }
+}
+
+pub fn burn<'info>(
+    mint: &Account<'info, Mint>,
+    to: &Account<'info, TokenAccount>,
+    authority: &Account<'info, IdoAccount>,
+    token_program: &Program<'info, Token>,
+    amount: u64,
+    signer: &[&[&[u8]]; 1],
+) -> ProgramResult {
+    // Burn the user's redeemable tokens.
+    let cpi_accounts = Burn {
+        mint: mint.to_account_info(),
+        to: to.to_account_info(),
+        authority: authority.to_account_info(),
+    };
+    let cpi_program = token_program.to_account_info();
+    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+    token::burn(cpi_ctx, amount)?;
+    Ok(())
+}
+
+pub fn transfer<'info>(
+    from: &Account<'info, TokenAccount>,
+    to: &Account<'info, TokenAccount>,
+    authority: &Account<'info, IdoAccount>,
+    token_program: &Program<'info, Token>,
+    amount: u64,
+    signer: &[&[&[u8]]; 1],
+) -> ProgramResult {
+    let cpi_accounts = Transfer {
+        from: from.to_account_info(),
+        to: to.to_account_info(),
+        authority: authority.to_account_info(),
+    };
+    let cpi_program = token_program.to_account_info();
+    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+    token::transfer(cpi_ctx, amount)?;
+    Ok(())
 }
 
 #[derive(Accounts)]
@@ -365,8 +443,17 @@ pub struct ExchangeRedeemableForUsdc<'info> {
         seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace(), b"pool_usdc"],
         bump = ido_account.bumps.pool_usdc)]
     pub pool_usdc: Box<Account<'info, TokenAccount>>,
+    #[account(init_if_needed,
+        seeds = [user_authority.key().as_ref(),
+            ido_account.ido_name.as_ref().trim_ascii_whitespace(),
+            b"user_withdraw_linear_decrease"],
+        bump,
+        payer = user_authority)]
+    pub user_withdraw_linear_decrease: Box<Account<'info, LinearDecreaseWithdrawAccount>>,
     // Programs and Sysvars
+    pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
+    pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]
@@ -449,6 +536,12 @@ pub struct IdoAccount {
     pub ido_times: IdoTimes,
 }
 
+#[account]
+#[derive(Default, Copy)]
+pub struct LinearDecreaseWithdrawAccount {
+    pub withdrawn: bool,
+}
+
 #[derive(AnchorSerialize, AnchorDeserialize, Default, Clone, Copy)]
 pub struct IdoTimes {
     pub start_ido: i64,
@@ -484,10 +577,14 @@ pub enum ErrorCode {
     LowUsdc,
     #[msg("Insufficient redeemable tokens")]
     LowRedeemable,
+    #[msg("Exceed max redeemable tokens")]
+    ExceedMaxRedeemable,
     #[msg("USDC total and redeemable total don't match")]
     UsdcNotEqRedeem,
     #[msg("Given nonce is invalid")]
     InvalidNonce,
+    #[msg("Exceed withdraw limit during linear decrease withdraw phase")]
+    ExceedLinearDecreaseWithdrawLimit,
 }
 
 // Access control modifiers.

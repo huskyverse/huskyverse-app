@@ -76,9 +76,13 @@ describe("ido-pool", () => {
     idoTimes = new IdoTimes();
     const nowBn = new anchor.BN(Date.now() / 1000);
     idoTimes.startIdo = nowBn.add(new anchor.BN(5));
-    idoTimes.endDeposits = nowBn.add(new anchor.BN(10));
-    idoTimes.endIdo = nowBn.add(new anchor.BN(15));
-    idoTimes.endEscrow = nowBn.add(new anchor.BN(16));
+    idoTimes.endDeposits = nowBn.add(new anchor.BN(12));
+    idoTimes.endIdo = nowBn.add(new anchor.BN(17));
+    idoTimes.endEscrow = nowBn.add(new anchor.BN(18));
+
+    console.log("ido starts: ", idoTimes.startIdo.toNumber() * 1000);
+    console.log("deposit ends: ", idoTimes.endDeposits.toNumber() * 1000);
+    console.log("ido ends: ", idoTimes.endIdo.toNumber() * 1000);
 
     await idoPool.initializePool(deps, idoTimes, huskyverseIdoAmount);
 
@@ -230,38 +234,73 @@ describe("ido-pool", () => {
     assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
   });
 
-  const firstWithdrawal = new anchor.BN(2_000_000);
-
-  it("Exchanges user Redeemable tokens for USDC", async () => {
+  const firstUserTotalWithdraw = new anchor.BN(2_000_000);
+  // describe("Exchanges user Redeemable tokens for USDC", () => {
+  it("has no amount limit during unrestricted phase", async () => {
+    // first withdraw
+    const fullWithdrawal = firstDeposit
     prevUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
     await idoPool.exchangeRedeemableForUsdc(
       deps,
       provider.wallet.publicKey,
       userUsdc,
-      firstWithdrawal
+      fullWithdrawal
     );
 
     const [poolUsdc] = await idoPool.accounts.poolUsdc();
 
-    totalPoolUsdc = totalPoolUsdc.sub(firstWithdrawal);
+    totalPoolUsdc = totalPoolUsdc.sub(fullWithdrawal);
     poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
     assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
 
     currUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
 
-    assert.ok(currUserUsdcAmount.sub(prevUserUsdcAmount).eq(firstWithdrawal));
+    assert.ok(currUserUsdcAmount.sub(prevUserUsdcAmount).eq(fullWithdrawal));
+
+    // re-deposit
+    await idoPool.exchangeUsdcForRedeemable(
+      deps,
+      provider.wallet.publicKey,
+      userUsdc,
+      firstDeposit
+    );
+    totalPoolUsdc = totalPoolUsdc.add(firstDeposit)
   });
+
+  it("can withdraw multiple times during unrestricted phase", async () => {
+    // second withdraw
+    const secondWithdrawal = firstUserTotalWithdraw;
+
+    prevUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
+    await idoPool.exchangeRedeemableForUsdc(
+      deps,
+      provider.wallet.publicKey,
+      userUsdc,
+      secondWithdrawal
+    );
+
+    const [poolUsdc] = await idoPool.accounts.poolUsdc();
+
+    totalPoolUsdc = totalPoolUsdc.sub(secondWithdrawal);
+    poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
+    assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
+
+    currUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
+
+    assert.ok(currUserUsdcAmount.sub(prevUserUsdcAmount).eq(secondWithdrawal));
+  })
+  // })
 
   it("Exchanges user Redeemable tokens for huskyverse", async () => {
     const huskyverseMint = deps.huskyverseMint;
     // Wait until the IDO has ended.
     if (Date.now() < idoTimes.endIdo.toNumber() * 1000) {
-      await sleep(idoTimes.endIdo.toNumber() * 1000 - Date.now() + 3000);
+      await sleep(idoTimes.endIdo.toNumber() * 1000 - Date.now() + 2000);
     }
 
     const [poolHuskyverse] = await idoPool.accounts.poolHuskyverse();
 
-    let firstUserRedeemable = firstDeposit.sub(firstWithdrawal);
+    let firstUserRedeemable = firstDeposit.sub(firstUserTotalWithdraw);
     // TODO we've been lazy here and not used an ATA as we did with USDC
     const userHuskyverse = await createTokenAccount(
       provider,

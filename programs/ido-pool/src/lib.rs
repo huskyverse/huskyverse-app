@@ -7,7 +7,7 @@ use anchor_spl::token::{self, Burn, CloseAccount, Mint, MintTo, Token, TokenAcco
 
 use std::ops::Deref;
 
-declare_id!("HU2fHYFndVc8UX8fJmhK5ea3bC4UfUFLieNh18fEQ6ad");
+declare_id!("2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz");
 
 const DECIMALS: u8 = 6;
 
@@ -192,11 +192,11 @@ pub mod ido_pool {
         }
 
         // Calculate huskyverse tokens due.
-        let huskyverse_amount = (amount as u128)
-            .checked_mul(ctx.accounts.pool_huskyverse.amount as u128)
-            .unwrap()
-            .checked_div(ctx.accounts.redeemable_mint.supply as u128)
-            .unwrap();
+        let huskyverse_amount = huskyverse_token_due(
+            amount as u128,
+            ctx.accounts.pool_huskyverse.amount as u128,
+            ctx.accounts.redeemable_mint.supply as u128,
+        );
 
         let ido_name = ctx.accounts.ido_account.ido_name.as_ref();
         let seeds = &[
@@ -262,6 +262,18 @@ pub mod ido_pool {
 
         Ok(())
     }
+}
+
+pub fn huskyverse_token_due(
+    redeem_amount: u128,
+    pool_huskyverse: u128,
+    redeemable_supply: u128,
+) -> u128 {
+    redeem_amount // 6 decimals
+        .checked_mul(pool_huskyverse) // 8 decimals
+        .unwrap()
+        .checked_div(redeemable_supply) // 6 decimals
+        .unwrap()
 }
 
 pub fn burn<'info>(

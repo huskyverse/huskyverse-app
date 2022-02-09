@@ -3,7 +3,7 @@ cluster = "http://127.0.0.1:8899"
 wallet = "~/.config/solana/id.json"
 
 [programs.localnet]
-ido_pool = "HU2fHYFndVc8UX8fJmhK5ea3bC4UfUFLieNh18fEQ6ad"
+ido_pool = "2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz"
 
 [scripts]
 init = "node ./scripts/init.js"

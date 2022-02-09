@@ -1,0 +1,89 @@
+03:42:39 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll .]    
+03:42:39 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+03:42:39 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+03:42:39 [info] [coderrect] [main.go:1224:main.main] Create the build directory. dir=/workspace/.coderrect/build    
+03:42:40 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[cargo +bpf build --target bpfel-unknown-unknown --release]    
+03:42:40 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec cargo +bpf build --target bpfel-unknown-unknown --release )    
+03:42:40 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+03:44:12 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    
+03:47:35 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll]    
+03:47:35 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+03:47:35 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+03:47:35 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[]    
+03:47:35 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec )    
+03:47:35 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+03:47:35 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    
+03:47:43 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll .]    
+03:47:43 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+03:47:43 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+03:47:43 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[cargo +bpf build --target bpfel-unknown-unknown --release]    
+03:47:43 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec cargo +bpf build --target bpfel-unknown-unknown --release )    
+03:47:43 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+03:49:14 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    
+04:01:49 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll .]    
+04:01:49 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+04:01:49 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+04:01:49 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[cargo +bpf build --target bpfel-unknown-unknown --release]    
+04:01:49 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec cargo +bpf build --target bpfel-unknown-unknown --release )    
+04:01:49 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+04:01:50 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    
+04:04:40 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll]    
+04:04:40 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+04:04:40 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+04:04:40 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[]    
+04:04:40 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec )    
+04:04:40 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+04:04:40 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    
+04:04:52 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll]    
+04:04:52 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+04:04:52 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+04:04:52 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[]    
+04:04:52 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec )    
+04:04:52 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+04:04:52 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    
+04:04:57 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll .]    
+04:04:57 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+04:04:57 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+04:04:57 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[cargo +bpf build --target bpfel-unknown-unknown --release]    
+04:04:57 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec cargo +bpf build --target bpfel-unknown-unknown --release )    
+04:04:57 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+04:06:20 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    
+04:06:52 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll .]    
+04:06:52 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+04:06:52 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+04:06:52 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[cargo +bpf build --target bpfel-unknown-unknown --release]    
+04:06:52 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec cargo +bpf build --target bpfel-unknown-unknown --release )    
+04:06:52 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+04:06:52 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    
+04:07:13 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll .]    
+04:07:13 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+04:07:13 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+04:07:13 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[cargo +bpf build --target bpfel-unknown-unknown --release]    
+04:07:13 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec cargo +bpf build --target bpfel-unknown-unknown --release )    
+04:07:13 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+04:07:14 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    
+04:07:42 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll .]    
+04:07:42 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+04:07:42 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+04:07:42 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[cargo +bpf build --target bpfel-unknown-unknown --release]    
+04:07:42 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec cargo +bpf build --target bpfel-unknown-unknown --release )    
+04:07:42 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+04:07:43 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    
+04:10:06 [info] [coderrect] [main.go:1082:main.main] Start a new session. version=soteria build 1638943738
+, args=[/soteria-linux-develop/bin/soteria -analyzeAll]    
+04:10:06 [info] [coderrect] [main.go:1098:main.main] Check cleanBuild flag. cleanBuild=false    
+04:10:06 [info] [coderrect] [main.go:1177:main.main] Passed cmdline args via env. cmdlineOpts={"Opts":["-analyzeAll","-logger.logFolder=/workspace/.coderrect/logs","-cwd=/workspace"]}    
+04:10:06 [info] [coderrect] [main.go:1331:main.main] Execute the build command to generate BC files. cmdline=[]    
+04:10:06 [info] [coderrect] [main.go:1339:main.main] Execute command line with coderrect-exec: (export LD_PRELOAD=/soteria-linux-develop/bin/libear.so; /soteria-linux-develop/bin/coderrect-exec )    
+04:10:06 [info] [coderrect] [main.go:1341:main.main] Path env: /soteria-linux-develop/bin:/root/.cargo/bin:/soteria-linux-develop/bin:/root/.local/share/solana/install/active_release/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin    
+04:10:06 [info] [coderrect] [main.go:673:main.exitGracefully] End of the session. exitCode=1    

@@ -140,7 +140,7 @@ pub mod _ido_pool {
                 end_deposits,
                 end_ido,
                 now,
-            ) as u64
+            ).unwrap() as u64
         };
 
         let withdraw_amount = if max_withdraw { max_redeemable } else { amount };

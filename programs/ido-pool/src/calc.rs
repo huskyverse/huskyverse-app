@@ -14,7 +14,8 @@ pub fn decayed_max_redeemable(
     end_deposits: i64,
     end_ido: i64,
     now: i64,
-) -> u128 {
+) -> Option<u128> {
+    // (end_ido - now) * max_redeemable / (end_ido - end_deposits)
     let withdraw_only_period = end_ido.checked_sub(end_deposits).unwrap() as u128;
 
     (end_ido as u128)
@@ -23,14 +24,13 @@ pub fn decayed_max_redeemable(
         .checked_mul(max_redeemable)
         .unwrap()
         .checked_div(withdraw_only_period)
-        .unwrap()
 }
 
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
 
-    use crate::calc::huskyverse_token_due;
+    use super::*;
 
     #[test]
     fn test_token_due_calc() {
@@ -56,5 +56,48 @@ mod tests {
 
         // div 0
         assert_eq!(huskyverse_token_due(10, 10, 0), None);
+    }
+
+    #[test]
+    fn test_decayed_max_redeemable() {
+        // max redeemable decrease linearly
+        let max_redeemable = 100_000000;
+        let end_deposits = 1644540000;
+        let end_ido = 1644550000;
+
+        // start
+        let now = end_deposits;
+        assert_eq!(
+            decayed_max_redeemable(max_redeemable, end_deposits, end_ido, now),
+            Some(max_redeemable)
+        );
+
+        // end
+        let now = end_ido;
+        assert_eq!(
+            decayed_max_redeemable(max_redeemable, end_deposits, end_ido, now),
+            Some(0)
+        );
+
+        // half way
+        let now = end_deposits + ((end_ido - end_deposits) / 2);
+        assert_eq!(
+            decayed_max_redeemable(max_redeemable, end_deposits, end_ido, now),
+            Some(50_000000)
+        );
+
+        // quater past start
+        let now = end_deposits + ((end_ido - end_deposits) / 4);
+        assert_eq!(
+            decayed_max_redeemable(max_redeemable, end_deposits, end_ido, now),
+            Some(75_000000)
+        );
+
+        // quater to end
+        let now = end_deposits + 3 * ((end_ido - end_deposits) / 4);
+        assert_eq!(
+            decayed_max_redeemable(max_redeemable, end_deposits, end_ido, now),
+            Some(25_000000)
+        );
     }
 }

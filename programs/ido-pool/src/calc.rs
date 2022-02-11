@@ -15,14 +15,16 @@ pub fn decayed_max_redeemable(
     end_ido: i64,
     now: i64,
 ) -> Option<u128> {
+    if now < end_deposits {
+        return None;
+    }
+
     // (end_ido - now) * max_redeemable / (end_ido - end_deposits)
-    let withdraw_only_period = end_ido.checked_sub(end_deposits).unwrap() as u128;
+    let withdraw_only_period = end_ido.checked_sub(end_deposits)? as u128;
 
     (end_ido as u128)
-        .checked_sub(now as u128)
-        .unwrap()
-        .checked_mul(max_redeemable)
-        .unwrap()
+        .checked_sub(now as u128)?
+        .checked_mul(max_redeemable)?
         .checked_div(withdraw_only_period)
 }
 
@@ -72,13 +74,6 @@ mod tests {
             Some(max_redeemable)
         );
 
-        // end
-        let now = end_ido;
-        assert_eq!(
-            decayed_max_redeemable(max_redeemable, end_deposits, end_ido, now),
-            Some(0)
-        );
-
         // half way
         let now = end_deposits + ((end_ido - end_deposits) / 2);
         assert_eq!(
@@ -98,6 +93,28 @@ mod tests {
         assert_eq!(
             decayed_max_redeemable(max_redeemable, end_deposits, end_ido, now),
             Some(25_000000)
+        );
+
+        // end
+        let now = end_ido;
+        assert_eq!(
+            decayed_max_redeemable(max_redeemable, end_deposits, end_ido, now),
+            Some(0)
+        );
+
+        // failed cases
+        // before decaying phase
+        let now = end_deposits - 1;
+        assert_eq!(
+            decayed_max_redeemable(max_redeemable, end_deposits, end_ido, now),
+            None
+        );
+
+        // after end
+        let now = end_ido + 1;
+        assert_eq!(
+            decayed_max_redeemable(max_redeemable, end_deposits, end_ido, now),
+            None
         );
     }
 }

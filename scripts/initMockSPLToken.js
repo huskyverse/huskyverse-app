@@ -1,4 +1,5 @@
 const anchor = require("@project-serum/anchor");
+const spl = require("@solana/spl-token");
 const { configEnv, createATA, createMint, mockUsdcMint } = require("./_util");
 const { PublicKey, LAMPORTS_PER_SOL } = anchor.web3;
 
@@ -8,7 +9,12 @@ anchor.setProvider(provider);
 // DEVELOPMENT ONLY
 const main = async () => {
   configEnv();
-  const mockUSDCToken = await createMint(provider, mockUsdcMint, 6);
+  const mockUSDCToken = new spl.Token(
+    provider.connection,
+    mockUsdcMint.publicKey,
+    spl.TOKEN_PROGRAM_ID,
+    provider.wallet.payer
+  );
 
   // LOOP peer local env
   JSON.parse(process.env.TESTER_PUBKEYS)

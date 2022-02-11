@@ -26,6 +26,7 @@ import { animate } from "framer-motion";
 import { ReactElement, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useIdoPool } from "../hooks/useIdoPool";
+import { useLinearWithdrawDecreaseInfo } from "../hooks/useLinearWithdrawDecreaseInfo";
 import { Phase, usePhaseInfo } from "../hooks/usePhaseInfo";
 import {
   usePredictedResult,
@@ -263,13 +264,14 @@ export const Withdraw = () => {
   const wallet = useAnchorWallet();
   const currentPhaseInfo = usePhaseInfo();
   const { idoPool, provider } = useIdoPool();
+  const { data } = useLinearWithdrawDecreaseInfo();
 
   // >>> TOUCHED
   const activePhases: Phase[] = ["UNRESTRICTED", "WITHDRAW"];
   const disabled =
     !activePhases.some(
       (activePhase) => currentPhaseInfo.phase === activePhase
-    ) && !!idoPool;
+    ) || (data !== undefined && data.withdrawn);
   // <<< TOUCHED
 
   const redeemable = useTokenBalance("redeemable");

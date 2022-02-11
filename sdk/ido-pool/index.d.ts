@@ -9,6 +9,7 @@ declare function _exports(provider: any, program: any, idoName: any): {
         poolHuskyverse: () => Promise<[anchor.web3.PublicKey, number]>;
         poolUsdc: () => Promise<[anchor.web3.PublicKey, number]>;
         userRedeemable: (userPubkey: any) => Promise<[anchor.web3.PublicKey, number]>;
+        userWithdrawLinearDecrease: (userPubkey: any) => Promise<[anchor.web3.PublicKey, number]>;
     };
 };
 export = _exports;

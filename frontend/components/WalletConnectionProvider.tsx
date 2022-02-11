@@ -38,7 +38,7 @@ export const WalletConnectionProvider: FC<{ children: ReactNode }> = ({
       new SolletExtensionWalletAdapter({ network }),
     ],
     [network]
-  );
+  ); 
 
   return (
     <ConnectionProvider endpoint={endpoint}>

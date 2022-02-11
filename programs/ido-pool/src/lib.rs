@@ -2,6 +2,9 @@
 //! https://docs.mango.markets/litepaper#token-sale.
 // #![warn(clippy::all)]
 
+mod calc;
+mod spl_tokenx;
+
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Burn, CloseAccount, Mint, MintTo, Token, TokenAccount, Transfer};
 
@@ -9,10 +12,11 @@ use std::ops::Deref;
 
 declare_id!("2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz");
 
-const DECIMALS: u8 = 6;
+const USDC_DECIMALS: u8 = 6;
+const HUSKYVERSE_DECIMALS: u8 = 8;
 
 #[program]
-pub mod ido_pool {
+pub mod _ido_pool {
     use super::*;
 
     #[access_control(validate_ido_times(ido_times))]
@@ -114,36 +118,29 @@ pub mod ido_pool {
             return Err(ErrorCode::ExceedLinearDecreaseWithdrawLimit.into());
         }
 
-        let clock = Clock::get()?;
-
-        let is_in_unrestricted_phase = match unrestricted_phase(ctx.accounts.ido_account.as_ref()) {
-            Ok(()) => true,
-            _ => false,
-        };
+        let is_in_unrestricted_phase =
+            unrestricted_phase(ctx.accounts.ido_account.as_ref()).is_ok();
 
         let max_redeemable = if is_in_unrestricted_phase {
             ctx.accounts.user_redeemable.amount
         } else {
             ctx.accounts.user_withdraw_linear_decrease.withdrawn = true;
 
-            let withdraw_only_period = ctx
-                .accounts
-                .ido_account
-                .ido_times
-                .end_ido
-                .checked_sub(ctx.accounts.ido_account.ido_times.end_deposits)
-                .unwrap();
+            let IdoTimes {
+                start_ido: _,
+                end_deposits,
+                end_ido,
+            } = ctx.accounts.ido_account.ido_times;
 
-            ctx.accounts
-                .ido_account
-                .ido_times
-                .end_ido
-                .checked_sub(clock.unix_timestamp)
-                .unwrap()
-                .checked_mul(ctx.accounts.user_redeemable.amount as i64)
-                .unwrap()
-                .checked_div(withdraw_only_period)
-                .unwrap() as u64
+            let clock = Clock::get()?;
+            let now = clock.unix_timestamp;
+
+            calc::decayed_max_redeemable(
+                ctx.accounts.user_redeemable.amount as u128,
+                end_deposits,
+                end_ido,
+                now,
+            ) as u64
         };
 
         let withdraw_amount = if max_withdraw { max_redeemable } else { amount };
@@ -159,7 +156,7 @@ pub mod ido_pool {
         ];
         let signer = &[&seeds[..]];
 
-        burn(
+        spl_tokenx::burn(
             ctx.accounts.redeemable_mint.as_ref(),
             ctx.accounts.user_redeemable.as_ref(),
             ctx.accounts.ido_account.as_ref(),
@@ -168,7 +165,7 @@ pub mod ido_pool {
             signer,
         )?;
 
-        transfer(
+        spl_tokenx::transfer(
             ctx.accounts.pool_usdc.as_ref(),
             ctx.accounts.user_usdc.as_ref(),
             ctx.accounts.ido_account.as_ref(),
@@ -185,18 +182,19 @@ pub mod ido_pool {
         ctx: Context<ExchangeRedeemableForHuskyverse>,
         amount: u64,
     ) -> ProgramResult {
-        msg!("EXCHANGE REDEEMABLE FOR huskyverse");
+        msg!("EXCHANGE REDEEMABLE FOR HUSKYVERSE");
         // While token::burn will check this, we prefer a verbose err msg.
         if ctx.accounts.user_redeemable.amount < amount {
             return Err(ErrorCode::LowRedeemable.into());
         }
 
         // Calculate huskyverse tokens due.
-        let huskyverse_amount = huskyverse_token_due(
+        let huskyverse_amount = calc::huskyverse_token_due(
             amount as u128,
             ctx.accounts.pool_huskyverse.amount as u128,
             ctx.accounts.redeemable_mint.supply as u128,
-        );
+        )
+        .unwrap();
 
         let ido_name = ctx.accounts.ido_account.ido_name.as_ref();
         let seeds = &[
@@ -264,57 +262,6 @@ pub mod ido_pool {
     }
 }
 
-pub fn huskyverse_token_due(
-    redeem_amount: u128,
-    pool_huskyverse: u128,
-    redeemable_supply: u128,
-) -> u128 {
-    redeem_amount // 6 decimals
-        .checked_mul(pool_huskyverse) // 8 decimals
-        .unwrap()
-        .checked_div(redeemable_supply) // 6 decimals
-        .unwrap()
-}
-
-pub fn burn<'info>(
-    mint: &Account<'info, Mint>,
-    to: &Account<'info, TokenAccount>,
-    authority: &Account<'info, IdoAccount>,
-    token_program: &Program<'info, Token>,
-    amount: u64,
-    signer: &[&[&[u8]]; 1],
-) -> ProgramResult {
-    // Burn the user's redeemable tokens.
-    let cpi_accounts = Burn {
-        mint: mint.to_account_info(),
-        to: to.to_account_info(),
-        authority: authority.to_account_info(),
-    };
-    let cpi_program = token_program.to_account_info();
-    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-    token::burn(cpi_ctx, amount)?;
-    Ok(())
-}
-
-pub fn transfer<'info>(
-    from: &Account<'info, TokenAccount>,
-    to: &Account<'info, TokenAccount>,
-    authority: &Account<'info, IdoAccount>,
-    token_program: &Program<'info, Token>,
-    amount: u64,
-    signer: &[&[&[u8]]; 1],
-) -> ProgramResult {
-    let cpi_accounts = Transfer {
-        from: from.to_account_info(),
-        to: to.to_account_info(),
-        authority: authority.to_account_info(),
-    };
-    let cpi_program = token_program.to_account_info();
-    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-    token::transfer(cpi_ctx, amount)?;
-    Ok(())
-}
-
 #[derive(Accounts)]
 #[instruction(ido_name: String, bumps: PoolBumps)]
 pub struct InitializePool<'info> {
@@ -333,16 +280,18 @@ pub struct InitializePool<'info> {
         payer = ido_authority)]
     pub ido_account: Box<Account<'info, IdoAccount>>,
     // TODO Confirm USDC mint address on mainnet or leave open as an option for other stables
-    #[account(constraint = usdc_mint.decimals == DECIMALS)]
+    #[account(constraint = usdc_mint.decimals == USDC_DECIMALS)]
     pub usdc_mint: Box<Account<'info, Mint>>,
     #[account(init,
-        mint::decimals = DECIMALS,
+        mint::decimals = USDC_DECIMALS, // redeemaable decimals = usdc decimals
         mint::authority = ido_account,
         seeds = [ido_name.as_bytes(), b"redeemable_mint".as_ref()],
         bump = bumps.redeemable_mint,
         payer = ido_authority)]
     pub redeemable_mint: Box<Account<'info, Mint>>,
-    #[account(constraint = huskyverse_mint.key() == ido_authority_huskyverse.mint)]
+    #[account(
+        constraint = huskyverse_mint.key() == ido_authority_huskyverse.mint,
+        constraint = huskyverse_mint.decimals == HUSKYVERSE_DECIMALS)]
     pub huskyverse_mint: Box<Account<'info, Mint>>,
     #[account(init,
         token::mint = huskyverse_mint,

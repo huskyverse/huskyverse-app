@@ -13,7 +13,7 @@ export const useIdoPool = () => {
     setProvider(provider);
 
     const programId = new web3.PublicKey(
-      "HU2fHYFndVc8UX8fJmhK5ea3bC4UfUFLieNh18fEQ6ad" // TODO: extract this to config
+      process.env.NEXT_PUBLIC_IDO_POOL_PROGRAM_ID as string // TODO: extract this to config
     );
 
     const program = new Program(idoPoolIdl, programId);

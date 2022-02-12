@@ -10,7 +10,7 @@ use anchor_spl::token::{self, Burn, CloseAccount, Mint, MintTo, Token, TokenAcco
 
 use std::ops::Deref;
 
-declare_id!("2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz");
+declare_id!("4cNW81vB43u2GgqmK7zwsucCtQi1Yo6qYbiN7fpXroT6");
 
 const USDC_DECIMALS: u8 = 6;
 const HUSKYVERSE_DECIMALS: u8 = 8;
@@ -140,7 +140,8 @@ pub mod _ido_pool {
                 end_deposits,
                 end_ido,
                 now,
-            ).unwrap() as u64
+            )
+            .unwrap() as u64
         };
 
         let withdraw_amount = if max_withdraw { max_redeemable } else { amount };

@@ -1,7 +1,8 @@
 const anchor = require("@project-serum/anchor");
+const { sleep } = require("@project-serum/common");
 const spl = require("@solana/spl-token");
-const { configEnv, createATA, createMint, mockUsdcMint } = require("./_util");
-const { PublicKey, LAMPORTS_PER_SOL } = anchor.web3;
+const { configEnv, createATA, mockUsdcMint } = require("./_util");
+const { PublicKey } = anchor.web3;
 
 const provider = anchor.Provider.env();
 anchor.setProvider(provider);
@@ -20,11 +21,6 @@ const main = async () => {
   JSON.parse(process.env.TESTER_PUBKEYS)
     .map((k) => new PublicKey(k))
     .forEach(async (pk) => {
-      const c = provider.connection;
-      const airdropSignature = await c.requestAirdrop(pk, 1 * LAMPORTS_PER_SOL);
-
-      await c.confirmTransaction(airdropSignature);
-
       const ata = await createATA(provider, mockUSDCToken.publicKey, pk);
 
       // mint to users

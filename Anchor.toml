@@ -1,9 +1,12 @@
 [provider]
-cluster = "http://127.0.0.1:8899"
+cluster = "https://api.devnet.solana.com"
 wallet = "~/.config/solana/id.json"
 
 [programs.localnet]
-ido_pool = "2E3Zkp8bU3sHR3Y1YsnJFCVMKDUA3qDLUJ2jyZXNEYxz"
+ido_pool = "4cNW81vB43u2GgqmK7zwsucCtQi1Yo6qYbiN7fpXroT6"
+
+[programs.devnet]
+ido_pool = "4cNW81vB43u2GgqmK7zwsucCtQi1Yo6qYbiN7fpXroT6"
 
 [scripts]
 init = "node ./scripts/init.js"

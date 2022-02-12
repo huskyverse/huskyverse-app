@@ -13,10 +13,11 @@
   ],
   "scripts": {
     "test": "anchor test",
-    "init-dev": "anchor deploy && ENV=dev anchor run init && ENV=dev anchor run init-mock-spl"
+    "init-local": "anchor deploy && ENV=local anchor run init && ENV=local anchor run init-mock-spl",
+    "init-dev": "anchor deploy --provider.cluster devnet && ENV=dev anchor run --provider.cluster devnet init"
   },
   "dependencies": {
-    "@project-serum/anchor": "^0.19.1-beta.1",
+    "@project-serum/anchor": "^0.20.1",
     "@project-serum/common": "^0.0.1-beta.3",
     "@project-serum/serum": "^0.13.61",
     "@solana/spl-token": "^0.1.8",

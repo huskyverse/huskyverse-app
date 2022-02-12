@@ -20,4 +20,5 @@ node_modules/
 
 test-ledger/
 
-.env.dev
+.env.local
+.env.prod

@@ -3,6 +3,7 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { Box, ChakraProvider, extendTheme } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
+import Head from "next/head";
 import { ReactNode } from "react";
 
 // Use require instead of import, and order matters
@@ -105,6 +106,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider theme={theme}>
       <WalletConnectionProvider>
+        <Head>
+          <title>Huskyverse App</title>
+        </Head>
         <Box
           position="fixed"
           width="100%"

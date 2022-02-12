@@ -6,7 +6,6 @@ import {
 } from "@solana/spl-token";
 import { PublicKey, Transaction } from "@solana/web3.js";
 
-// TODO: config by env
 const mint = {
   usdc: process.env.NEXT_PUBLIC_USDC_MINT_ACCOUNT,
   hkv: process.env.NEXT_PUBLIC_HKV_MINT_ACCOUNT,

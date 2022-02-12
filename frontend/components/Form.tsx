@@ -8,6 +8,7 @@ import {
   Input,
   InputGroup,
   InputRightAddon,
+  InputRightElement,
   NumberInput,
   Skeleton,
   Stat,
@@ -266,12 +267,15 @@ export const Withdraw = () => {
   const { idoPool, provider } = useIdoPool();
   const { data } = useLinearWithdrawDecreaseInfo();
 
+  const [maxWithdraw, setMaxWithdraw] = useState(false);
+
   // >>> TOUCHED
   const activePhases: Phase[] = ["UNRESTRICTED", "WITHDRAW"];
   const disabled =
     !activePhases.some(
       (activePhase) => currentPhaseInfo.phase === activePhase
-    ) || (data !== undefined && data.withdrawn);
+    ) ||
+    (data !== undefined && data.withdrawn);
   // <<< TOUCHED
 
   const redeemable = useTokenBalance("redeemable");
@@ -281,7 +285,7 @@ export const Withdraw = () => {
 
   const amt = new BN(redeemable.data?.amount || "0");
   // >>> TOUCHED
-  const { handleSubmit, register, formState, reset } = useForm({
+  const { handleSubmit, register, formState, reset, setValue } = useForm({
     defaultValues: {
       withdrawalAmount: "",
     },
@@ -298,7 +302,9 @@ export const Withdraw = () => {
             const usdcMint = mintPubkey("usdc");
             const huskyverseMint = mintPubkey("hkv");
 
-            const amount = toBN(v.withdrawalAmount, "usdc");
+            const amount = maxWithdraw
+              ? "MAX"
+              : toBN(v.withdrawalAmount, "usdc");
             const ata = await getOrCreateATA(provider, publicKey, "usdc");
 
             await idoPool.exchangeRedeemableForUsdc(
@@ -321,14 +327,18 @@ export const Withdraw = () => {
           <NumberInput>
             <InputGroup my="5">
               <Input
-                disabled={disabled}
+                disabled={disabled || maxWithdraw}
                 variant={disabled ? "filled" : "outline"}
                 // >>> TOUCHED
-                placeholder="USDC amount you want to withdraw from contribution"
+                placeholder={
+                  maxWithdraw
+                    ? "MAX AVAILABLE AMOUNT"
+                    : "USDC amount you want to withdraw"
+                }
                 // <<< TOUCHED
                 id="withdrawAmount"
                 {...register("withdrawalAmount", {
-                  required: "withdrawal amount can't be blank",
+                  required: !maxWithdraw && "withdrawal amount can't be blank",
                   pattern: {
                     value: new RegExp(
                       `^(\\d+)\\.?(\\d{0,${tokenDecimals["usdc"]}})$`
@@ -338,11 +348,28 @@ export const Withdraw = () => {
                       tokenDecimals["usdc"],
                   },
                   validate: (v) =>
+                    maxWithdraw ||
                     (!!redeemable.data && toBN(v, "usdc").lte(amt)) ||
                     "not enough contributed USDC to withdraw from",
                 })}
               />
-              <InputRightAddon>USDC</InputRightAddon>
+              {/* <InputRightElement>
+                
+              </InputRightElement> */}
+              <InputRightAddon>
+                <Button
+                  h="1.75rem"
+                  size="sm"
+                  marginRight="1rem"
+                  onClick={() => {
+                    setValue("withdrawalAmount", "");
+                    setMaxWithdraw((prev) => !prev);
+                  }}
+                >
+                  {maxWithdraw ? "Cancel" : "Max"}
+                </Button>
+                USDC
+              </InputRightAddon>
             </InputGroup>
             <FormErrorMessage my="5">
               {errors.withdrawalAmount && errors.withdrawalAmount.message}

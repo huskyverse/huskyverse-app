@@ -162,28 +162,34 @@ module.exports = (provider, program, idoName) => {
       userUsdc,
       withdrawalAmount
     ) => {
+      const isMaxAmount = withdrawalAmount === "MAX";
       const [idoAccount] = await accounts.ido();
       const [redeemableMint] = await accounts.redeemableMint();
       const [poolUsdc] = await accounts.poolUsdc();
       const [userRedeemable] = await accounts.userRedeemable(userPubKey);
-      const [userWithdrawLinearDecrease] = await accounts.userWithdrawLinearDecrease(userPubKey);
+      const [userWithdrawLinearDecrease] =
+        await accounts.userWithdrawLinearDecrease(userPubKey);
 
-      return await program.rpc.exchangeRedeemableForUsdc(false, withdrawalAmount, {
-        accounts: {
-          userAuthority: userPubKey,
-          userUsdc,
-          userRedeemable,
-          idoAccount,
-          usdcMint,
-          redeemableMint,
-          huskyverseMint,
-          poolUsdc,
-          userWithdrawLinearDecrease,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        },
-      });
+      return await program.rpc.exchangeRedeemableForUsdc(
+        isMaxAmount,
+        isMaxAmount ? new anchor.BN(0) : withdrawalAmount,
+        {
+          accounts: {
+            userAuthority: userPubKey,
+            userUsdc,
+            userRedeemable,
+            idoAccount,
+            usdcMint,
+            redeemableMint,
+            huskyverseMint,
+            poolUsdc,
+            userWithdrawLinearDecrease,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          },
+        }
+      );
     },
     exchangeRedeemableForHuskyverse: async (
       { huskyverseMint } = _deps,

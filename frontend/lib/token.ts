@@ -7,8 +7,8 @@ import {
 import { PublicKey, Transaction } from "@solana/web3.js";
 
 const mint = {
-  usdc: process.env.NEXT_PUBLIC_USDC_MINT_ACCOUNT,
-  hkv: process.env.NEXT_PUBLIC_HKV_MINT_ACCOUNT,
+  usdc: process.env.NEXT_PUBLIC_USDC_MINT_ACCOUNT as string,
+  hkv: process.env.NEXT_PUBLIC_HKV_MINT_ACCOUNT as string,
 };
 
 export const tokenDecimals = {
@@ -16,8 +16,7 @@ export const tokenDecimals = {
   hkv: 8,
 };
 
-export const mintPubkey = (k: "usdc" | "hkv") =>
-  new PublicKey(mint[k] as string);
+export const mintPubkey = (k: "usdc" | "hkv") => new PublicKey(mint[k]);
 
 // TODO: create ATA if not exist
 

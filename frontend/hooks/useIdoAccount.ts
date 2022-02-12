@@ -23,7 +23,7 @@ export const useIdoAccount = () => {
       };
     }
 
-    if (idoPool) {
+    if (idoPool && program) {
       const [ido] = await idoPool.accounts.ido();
       const idoAccount = await program.account.idoAccount.fetch(ido.toBase58());
 

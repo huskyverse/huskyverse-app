@@ -361,6 +361,7 @@ export const Withdraw = () => {
                   h="1.75rem"
                   size="sm"
                   marginRight="1rem"
+                  disabled={disabled}
                   onClick={() => {
                     setValue("withdrawalAmount", "");
                     setMaxWithdraw((prev) => !prev);

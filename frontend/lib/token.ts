@@ -8,8 +8,8 @@ import { PublicKey, Transaction } from "@solana/web3.js";
 
 // TODO: config by env
 const mint = {
-  usdc: "7N51bsWy9kXmDP89kyPGqUxg576q8CNYf8Gp18HnsRAf",
-  hkv: "csGJUUWKYgEw83kgrH9tWQpYcVYETWWQtwvXy1nWtkH",
+  usdc: process.env.NEXT_PUBLIC_USDC_MINT_ACCOUNT,
+  hkv: process.env.NEXT_PUBLIC_HKV_MINT_ACCOUNT,
 };
 
 export const tokenDecimals = {

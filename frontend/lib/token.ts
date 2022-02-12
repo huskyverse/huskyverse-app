@@ -16,7 +16,8 @@ export const tokenDecimals = {
   hkv: 8,
 };
 
-export const mintPubkey = (k: "usdc" | "hkv") => new PublicKey(mint[k]);
+export const mintPubkey = (k: "usdc" | "hkv") =>
+  new PublicKey(mint[k] as string);
 
 // TODO: create ATA if not exist
 

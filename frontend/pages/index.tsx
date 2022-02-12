@@ -19,6 +19,7 @@ import {
   Withdraw,
 } from "../components/Form";
 import { Glass } from "../components/Glass";
+import { MaxWithdrawChart } from "../components/MaxWithdrawChart";
 
 const Phaser = dynamic<{}>(
   () => import("../components/Phaser").then(({ Phaser }) => Phaser),
@@ -113,6 +114,7 @@ const Home: NextPage = () => {
 
                     <PredictedHKV />
                   </StatGroup>
+                  <MaxWithdrawChart />
                   <Withdraw />
                   <ClaimHKV />
 

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "export": "next export",
     "test": "jest --watch"
   },
   "dependencies": {
@@ -33,6 +34,7 @@
     "react-countdown": "^2.3.2",
     "react-dom": "17.0.2",
     "react-hook-form": "^7.23.0",
+    "recharts": "^2.1.9",
     "swr": "^1.1.2"
   },
   "devDependencies": {

@@ -332,7 +332,7 @@ export const Withdraw = () => {
                 // >>> TOUCHED
                 placeholder={
                   maxWithdraw
-                    ? "MAX AVAILABLE AMOUNT"
+                    ? "MAX WITHDRAWABLE AMOUNT"
                     : "USDC amount you want to withdraw"
                 }
                 // <<< TOUCHED

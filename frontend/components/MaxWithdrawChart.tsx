@@ -1,40 +1,79 @@
 import { Box } from "@chakra-ui/react";
-import React from "react";
+import { BN } from "@project-serum/anchor";
+import { useWallet } from "@solana/wallet-adapter-react";
+import React, { useMemo } from "react";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
+import { useIdoAccount } from "../hooks/useIdoAccount";
 import { usePhaseInfo } from "../hooks/usePhaseInfo";
+import { useTokenBalance } from "../hooks/userTokenBalance";
 
-const data = [
-  {
-    name: "Page A",
-    uv: 100,
-    pv: 100,
-    amt: 2400,
-  },
-  {
-    name: "Page B",
-    uv: 0,
-    pv: 0,
-    amt: 2210,
-  },
-];
+type ChartData = {
+  amount: number;
+  datetime: number;
+}[];
+
+interface IdoTimes {
+  startIdo: BN;
+  endDeposits: BN;
+  endIdo: BN;
+}
+
+const calcMaxRedeemable = ({ endDeposits, endIdo }: IdoTimes) => {
+  const nowBn = new BN(Date.now() / 1000);
+  return endIdo.sub(nowBn).mul(new BN(100)).div(endIdo.sub(endDeposits));
+};
+
+const genChartData = (
+  original: number,
+  { endDeposits, endIdo }: IdoTimes
+): ChartData => {
+  return [
+    {
+      amount: original,
+      datetime: endDeposits.toNumber(),
+    },
+    {
+      amount: 0,
+      datetime: endIdo.toNumber(),
+    },
+  ];
+};
 
 export const MaxWithdrawChart = () => {
   const currentPhaseInfo = usePhaseInfo();
-  console.log(currentPhaseInfo.phase);
+  const { data: idoData } = useIdoAccount();
+  const { data: balance } = useTokenBalance("redeemable");
+  const { wallet } = useWallet();
 
-  if (currentPhaseInfo.phase !== "WITHDRAW") return null;
+  const maxRedeemable = useMemo(
+    () => idoData && calcMaxRedeemable(idoData.idoTimes),
+    [idoData]
+  )?.toNumber();
+  const originalRedeemable = balance?.uiAmount;
+
+  const chartData = useMemo(() => {
+    if (wallet && originalRedeemable && idoData) {
+      return genChartData(originalRedeemable, idoData.idoTimes);
+    }
+    return [];
+  }, [wallet, originalRedeemable, idoData]);
+
+  if (
+    currentPhaseInfo.phase !== "WITHDRAW" ||
+    !maxRedeemable ||
+    !originalRedeemable ||
+    !chartData.length
+  )
+    return null;
 
   return (
-    <Box my="5" height={150}>
+    <Box my="5" height={150} position="relative">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
-          width={200}
-          height={60}
-          data={data}
+          data={chartData}
           margin={{
             right: 0,
             left: 0,
-            bottom: 5,
           }}
         >
           <defs>
@@ -45,13 +84,41 @@ export const MaxWithdrawChart = () => {
           </defs>
           <Area
             type="monotone"
-            dataKey="uv"
+            dataKey="amount"
             stroke="#ffffff"
             strokeWidth={2}
             fill="url(#colorUv)"
           />
         </AreaChart>
       </ResponsiveContainer>
+
+      <Box
+        position="absolute"
+        height={`${maxRedeemable}%`}
+        bottom={0}
+        right={`${maxRedeemable}%`}
+        transition="all"
+      >
+        <div
+          style={{
+            height: "100%",
+            width: "1px",
+            backgroundColor: "white",
+            opacity: 0.2,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: "-4px",
+            left: "-3px",
+            width: "7px",
+            height: "7px",
+            borderRadius: "50%",
+            backgroundColor: "#fff",
+          }}
+        />
+      </Box>
     </Box>
   );
 };

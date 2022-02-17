@@ -1,6 +1,7 @@
 import { Box } from "@chakra-ui/react";
 import { BN } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { motion } from "framer-motion";
 import React, { useMemo } from "react";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { useIdoAccount } from "../hooks/useIdoAccount";
@@ -97,7 +98,7 @@ export const MaxWithdrawChart = () => {
         height={`${maxRedeemable}%`}
         bottom={0}
         right={`${maxRedeemable}%`}
-        transition="all"
+        transition="all 0.3s"
       >
         <div
           style={{
@@ -115,7 +116,29 @@ export const MaxWithdrawChart = () => {
             width: "7px",
             height: "7px",
             borderRadius: "50%",
-            backgroundColor: "#fff",
+            background: "#fff",
+          }}
+        />
+        <motion.div
+          animate={{
+            scale: [1, 5],
+            opacity: [1, 0],
+          }}
+          transition={{
+            duration: 1,
+            ease: "easeInOut",
+            repeat: Infinity,
+          }}
+          style={{
+            position: "absolute",
+            top: "-4px",
+            left: "-3px",
+            width: "7px",
+            height: "7px",
+            borderRadius: "50%",
+            border: "1px solid #fff",
+            opacity: 0.2,
+            background: "transparent",
           }}
         />
       </Box>

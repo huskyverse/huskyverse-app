@@ -73,13 +73,13 @@ const Home: NextPage = () => {
   return (
     <Constraint>
       <Grid templateColumns="repeat(5, 1fr)" gap={8} width="100%">
-        <GridItem colSpan={2}>
+        <GridItem colSpan={{ md: 2, base: 5 }}>
           <Box>
             <Phaser />
             <Stats />
           </Box>
         </GridItem>
-        <GridItem colSpan={3}>
+        <GridItem colSpan={{ md: 3, base: 5}}>
           <Box>
             <Box>
               <Glass>

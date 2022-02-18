@@ -30,7 +30,7 @@ const main = async () => {
   if (process.env.ENV === "local") {
     USDCToken = await createMint(provider, mockUsdcMint, 6);
     HKVToken = await createMint(provider, mockHkvMint, 8);
-    depositDurationInMinutes = 2
+    depositDurationInMinutes = 10
     linearWithdrawDurationInMinutes = 2
   } else if (process.env.ENV === "dev") {
     USDCToken = new spl.Token(

@@ -25,13 +25,14 @@ const main = async () => {
   const idoPool = createIdoPool(provider, program, idoName);
 
   let USDCToken, HKVToken;
-  let depositDurationInMinutes = 10, linearWithdrawDurationInMinutes = 60
+  let depositDurationInMinutes = 10,
+    linearWithdrawDurationInMinutes = 60;
   // only dev
   if (process.env.ENV === "local") {
     USDCToken = await createMint(provider, mockUsdcMint, 6);
     HKVToken = await createMint(provider, mockHkvMint, 8);
-    depositDurationInMinutes = 10
-    linearWithdrawDurationInMinutes = 2
+    depositDurationInMinutes = 10;
+    linearWithdrawDurationInMinutes = 2;
   } else if (process.env.ENV === "dev") {
     USDCToken = new spl.Token(
       provider.connection,
@@ -83,8 +84,14 @@ const main = async () => {
   const idoTimes = new IdoTimes();
   const nowBn = new anchor.BN(Date.now() / 1000);
   idoTimes.startIdo = nowBn.add(new anchor.BN(10));
-  idoTimes.endDeposits = nowBn.add(new anchor.BN(60 * depositDurationInMinutes));
-  idoTimes.endIdo = nowBn.add(new anchor.BN(60 * (depositDurationInMinutes + linearWithdrawDurationInMinutes)));
+  idoTimes.endDeposits = nowBn.add(
+    new anchor.BN(60 * depositDurationInMinutes)
+  );
+  idoTimes.endIdo = nowBn.add(
+    new anchor.BN(
+      60 * (depositDurationInMinutes + linearWithdrawDurationInMinutes)
+    )
+  );
 
   const deps = { usdcMint, huskyverseMint, idoAuthorityHuskyverse };
 

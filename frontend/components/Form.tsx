@@ -8,7 +8,6 @@ import {
   Input,
   InputGroup,
   InputRightAddon,
-  InputRightElement,
   NumberInput,
   Skeleton,
   Stat,

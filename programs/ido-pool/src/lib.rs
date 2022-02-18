@@ -16,7 +16,7 @@ const USDC_DECIMALS: u8 = 6;
 const HUSKYVERSE_DECIMALS: u8 = 8;
 
 #[program]
-pub mod _ido_pool {
+pub mod ido_pool {
     use super::*;
 
     #[access_control(validate_ido_times(ido_times))]

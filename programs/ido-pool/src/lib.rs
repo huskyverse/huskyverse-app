@@ -19,13 +19,13 @@ const HUSKYVERSE_DECIMALS: u8 = 8;
 pub mod ido_pool {
     use super::*;
 
-    #[access_control(validate_ido_times(ido_times))]
+    #[access_control(validate_ido_times(public_ido_times))]
     pub fn initialize_pool(
         ctx: Context<InitializePool>,
         ido_name: String,
         bumps: PoolBumps,
         num_ido_tokens: u64,
-        ido_times: IdoTimes,
+        public_ido_times: IdoTimes,
     ) -> ProgramResult {
         msg!("INITIALIZE POOL");
 
@@ -42,16 +42,17 @@ pub mod ido_pool {
         ido_account.usdc_mint = ctx.accounts.usdc_mint.key();
         ido_account.redeemable_mint = ctx.accounts.redeemable_mint.key();
         ido_account.huskyverse_mint = ctx.accounts.huskyverse_mint.key();
-        ido_account.pool_usdc = ctx.accounts.pool_usdc.key();
-        ido_account.pool_huskyverse = ctx.accounts.pool_huskyverse.key();
+
+        ido_account.public_pool_usdc = ctx.accounts.public_pool_usdc.key();
+        ido_account.public_pool_huskyverse = ctx.accounts.public_pool_huskyverse.key();
 
         ido_account.num_ido_tokens = num_ido_tokens;
-        ido_account.ido_times = ido_times;
+        ido_account.public_ido_times = public_ido_times;
 
         // Transfer huskyverse from ido_authority to pool account.
         let cpi_accounts = Transfer {
             from: ctx.accounts.ido_authority_huskyverse.to_account_info(),
-            to: ctx.accounts.pool_huskyverse.to_account_info(),
+            to: ctx.accounts.public_pool_huskyverse.to_account_info(),
             authority: ctx.accounts.ido_authority.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
@@ -81,7 +82,7 @@ pub mod ido_pool {
         // Transfer user's USDC to pool USDC account.
         let cpi_accounts = Transfer {
             from: ctx.accounts.user_usdc.to_account_info(),
-            to: ctx.accounts.pool_usdc.to_account_info(),
+            to: ctx.accounts.public_pool_usdc.to_account_info(),
             authority: ctx.accounts.user_authority.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
@@ -130,7 +131,7 @@ pub mod ido_pool {
                 start_ido: _,
                 end_deposits,
                 end_ido,
-            } = ctx.accounts.ido_account.ido_times;
+            } = ctx.accounts.ido_account.public_ido_times;
 
             let clock = Clock::get()?;
             let now = clock.unix_timestamp;
@@ -167,7 +168,7 @@ pub mod ido_pool {
         )?;
 
         spl_tokenx::transfer(
-            ctx.accounts.pool_usdc.as_ref(),
+            ctx.accounts.public_pool_usdc.as_ref(),
             ctx.accounts.user_usdc.as_ref(),
             ctx.accounts.ido_account.as_ref(),
             &ctx.accounts.token_program,
@@ -192,7 +193,7 @@ pub mod ido_pool {
         // Calculate huskyverse tokens due.
         let huskyverse_amount = calc::huskyverse_token_due(
             amount as u128,
-            ctx.accounts.pool_huskyverse.amount as u128,
+            ctx.accounts.public_pool_huskyverse.amount as u128,
             ctx.accounts.redeemable_mint.supply as u128,
         )
         .unwrap();
@@ -216,7 +217,7 @@ pub mod ido_pool {
 
         // Transfer huskyverse from pool account to user.
         let cpi_accounts = Transfer {
-            from: ctx.accounts.pool_huskyverse.to_account_info(),
+            from: ctx.accounts.public_pool_huskyverse.to_account_info(),
             to: ctx.accounts.user_huskyverse.to_account_info(),
             authority: ctx.accounts.ido_account.to_account_info(),
         };
@@ -241,7 +242,7 @@ pub mod ido_pool {
     }
 
     #[access_control(ido_over(&ctx.accounts.ido_account))]
-    pub fn withdraw_pool_usdc(ctx: Context<WithdrawPoolUsdc>) -> ProgramResult {
+    pub fn withdraw_public_pool_usdc(ctx: Context<WithdrawPoolUsdc>) -> ProgramResult {
         msg!("WITHDRAW POOL USDC");
         // Transfer total USDC from pool account to ido_authority account.
         let ido_name = ctx.accounts.ido_account.ido_name.as_ref();
@@ -251,13 +252,13 @@ pub mod ido_pool {
         ];
         let signer = &[&seeds[..]];
         let cpi_accounts = Transfer {
-            from: ctx.accounts.pool_usdc.to_account_info(),
+            from: ctx.accounts.public_pool_usdc.to_account_info(),
             to: ctx.accounts.ido_authority_usdc.to_account_info(),
             authority: ctx.accounts.ido_account.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-        token::transfer(cpi_ctx, ctx.accounts.pool_usdc.amount)?;
+        token::transfer(cpi_ctx, ctx.accounts.public_pool_usdc.amount)?;
 
         Ok(())
     }
@@ -297,17 +298,17 @@ pub struct InitializePool<'info> {
     #[account(init,
         token::mint = huskyverse_mint,
         token::authority = ido_account,
-        seeds = [ido_name.as_bytes(), b"pool_huskyverse"],
-        bump = bumps.pool_huskyverse,
+        seeds = [ido_name.as_bytes(), b"public_pool_huskyverse"],
+        bump = bumps.public_pool_huskyverse,
         payer = ido_authority)]
-    pub pool_huskyverse: Box<Account<'info, TokenAccount>>,
+    pub public_pool_huskyverse: Box<Account<'info, TokenAccount>>,
     #[account(init,
         token::mint = usdc_mint,
         token::authority = ido_account,
-        seeds = [ido_name.as_bytes(), b"pool_usdc"],
-        bump = bumps.pool_usdc,
+        seeds = [ido_name.as_bytes(), b"public_pool_usdc"],
+        bump = bumps.public_pool_usdc,
         payer = ido_authority)]
-    pub pool_usdc: Box<Account<'info, TokenAccount>>,
+    pub public_pool_usdc: Box<Account<'info, TokenAccount>>,
     // Programs and Sysvars
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
@@ -367,9 +368,9 @@ pub struct ExchangeUsdcForRedeemable<'info> {
         bump = ido_account.bumps.redeemable_mint)]
     pub redeemable_mint: Box<Account<'info, Mint>>,
     #[account(mut,
-        seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace(), b"pool_usdc"],
-        bump = ido_account.bumps.pool_usdc)]
-    pub pool_usdc: Box<Account<'info, TokenAccount>>,
+        seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace(), b"public_pool_usdc"],
+        bump = ido_account.bumps.public_pool_usdc)]
+    pub public_pool_usdc: Box<Account<'info, TokenAccount>>,
     // Programs and Sysvars
     pub token_program: Program<'info, Token>,
 }
@@ -400,9 +401,9 @@ pub struct ExchangeRedeemableForUsdc<'info> {
         bump = ido_account.bumps.redeemable_mint)]
     pub redeemable_mint: Box<Account<'info, Mint>>,
     #[account(mut,
-        seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace(), b"pool_usdc"],
-        bump = ido_account.bumps.pool_usdc)]
-    pub pool_usdc: Box<Account<'info, TokenAccount>>,
+        seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace(), b"public_pool_usdc"],
+        bump = ido_account.bumps.public_pool_usdc)]
+    pub public_pool_usdc: Box<Account<'info, TokenAccount>>,
     #[account(init_if_needed,
         seeds = [user_authority.key().as_ref(),
             ido_account.ido_name.as_ref().trim_ascii_whitespace(),
@@ -446,9 +447,9 @@ pub struct ExchangeRedeemableForHuskyverse<'info> {
         bump = ido_account.bumps.redeemable_mint)]
     pub redeemable_mint: Box<Account<'info, Mint>>,
     #[account(mut,
-        seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace(), b"pool_huskyverse"],
-        bump = ido_account.bumps.pool_huskyverse)]
-    pub pool_huskyverse: Box<Account<'info, TokenAccount>>,
+        seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace(), b"public_pool_huskyverse"],
+        bump = ido_account.bumps.public_pool_huskyverse)]
+    pub public_pool_huskyverse: Box<Account<'info, TokenAccount>>,
     // Programs and Sysvars
     pub token_program: Program<'info, Token>,
 }
@@ -472,9 +473,9 @@ pub struct WithdrawPoolUsdc<'info> {
     pub usdc_mint: Box<Account<'info, Mint>>,
     pub huskyverse_mint: Box<Account<'info, Mint>>,
     #[account(mut,
-        seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace(), b"pool_usdc"],
-        bump = ido_account.bumps.pool_usdc)]
-    pub pool_usdc: Box<Account<'info, TokenAccount>>,
+        seeds = [ido_account.ido_name.as_ref().trim_ascii_whitespace(), b"public_pool_usdc"],
+        bump = ido_account.bumps.public_pool_usdc)]
+    pub public_pool_usdc: Box<Account<'info, TokenAccount>>,
     // Program and Sysvars
     pub token_program: Program<'info, Token>,
 }
@@ -489,11 +490,11 @@ pub struct IdoAccount {
     pub usdc_mint: Pubkey,
     pub redeemable_mint: Pubkey,
     pub huskyverse_mint: Pubkey,
-    pub pool_usdc: Pubkey,
-    pub pool_huskyverse: Pubkey,
+    pub public_pool_usdc: Pubkey,
+    pub public_pool_huskyverse: Pubkey,
 
     pub num_ido_tokens: u64,
-    pub ido_times: IdoTimes,
+    pub public_ido_times: IdoTimes,
 }
 
 #[account]
@@ -513,8 +514,8 @@ pub struct IdoTimes {
 pub struct PoolBumps {
     pub ido_account: u8,
     pub redeemable_mint: u8,
-    pub pool_huskyverse: u8,
-    pub pool_usdc: u8,
+    pub public_pool_huskyverse: u8,
+    pub public_pool_usdc: u8,
 }
 
 #[error]
@@ -565,9 +566,9 @@ fn validate_ido_times(ido_times: IdoTimes) -> ProgramResult {
 // Asserts the IDO is still accepting deposits.
 fn unrestricted_phase(ido_account: &IdoAccount) -> ProgramResult {
     let clock = Clock::get()?;
-    if clock.unix_timestamp <= ido_account.ido_times.start_ido {
+    if clock.unix_timestamp <= ido_account.public_ido_times.start_ido {
         return Err(ErrorCode::StartIdoTime.into());
-    } else if ido_account.ido_times.end_deposits <= clock.unix_timestamp {
+    } else if ido_account.public_ido_times.end_deposits <= clock.unix_timestamp {
         return Err(ErrorCode::EndDepositsTime.into());
     }
     Ok(())
@@ -576,9 +577,9 @@ fn unrestricted_phase(ido_account: &IdoAccount) -> ProgramResult {
 // Asserts the IDO has started but not yet finished.
 fn withdraw_phase(ido_account: &IdoAccount) -> ProgramResult {
     let clock = Clock::get()?;
-    if clock.unix_timestamp <= ido_account.ido_times.start_ido {
+    if clock.unix_timestamp <= ido_account.public_ido_times.start_ido {
         return Err(ErrorCode::StartIdoTime.into());
-    } else if ido_account.ido_times.end_ido <= clock.unix_timestamp {
+    } else if ido_account.public_ido_times.end_ido <= clock.unix_timestamp {
         return Err(ErrorCode::EndIdoTime.into());
     }
     Ok(())
@@ -587,7 +588,7 @@ fn withdraw_phase(ido_account: &IdoAccount) -> ProgramResult {
 // Asserts the IDO sale period has ended.
 fn ido_over(ido_account: &IdoAccount) -> ProgramResult {
     let clock = Clock::get()?;
-    if clock.unix_timestamp <= ido_account.ido_times.end_ido {
+    if clock.unix_timestamp <= ido_account.public_ido_times.end_ido {
         return Err(ErrorCode::IdoNotOver.into());
     }
     Ok(())

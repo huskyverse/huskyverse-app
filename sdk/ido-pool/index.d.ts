@@ -6,8 +6,8 @@ declare function _exports(provider: any, program: any, idoName: any): {
     accounts: {
         ido: () => Promise<[anchor.web3.PublicKey, number]>;
         redeemableMint: () => Promise<[anchor.web3.PublicKey, number]>;
-        poolHuskyverse: () => Promise<[anchor.web3.PublicKey, number]>;
-        poolUsdc: () => Promise<[anchor.web3.PublicKey, number]>;
+        publicPoolHuskyverse: () => Promise<[anchor.web3.PublicKey, number]>;
+        publicPoolUsdc: () => Promise<[anchor.web3.PublicKey, number]>;
         userRedeemable: (userPubkey: any) => Promise<[anchor.web3.PublicKey, number]>;
         userWithdrawLinearDecrease: (userPubkey: any) => Promise<[anchor.web3.PublicKey, number]>;
     };

@@ -38,12 +38,12 @@ const idl: Idl = {
           "isSigner": false
         },
         {
-          "name": "poolHuskyverse",
+          "name": "publicPoolHuskyverse",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "poolUsdc",
+          "name": "publicPoolUsdc",
           "isMut": true,
           "isSigner": false
         },
@@ -79,7 +79,7 @@ const idl: Idl = {
           "type": "u64"
         },
         {
-          "name": "idoTimes",
+          "name": "publicIdoTimes",
           "type": {
             "defined": "IdoTimes"
           }
@@ -161,7 +161,7 @@ const idl: Idl = {
           "isSigner": false
         },
         {
-          "name": "poolUsdc",
+          "name": "publicPoolUsdc",
           "isMut": true,
           "isSigner": false
         },
@@ -217,7 +217,7 @@ const idl: Idl = {
           "isSigner": false
         },
         {
-          "name": "poolUsdc",
+          "name": "publicPoolUsdc",
           "isMut": true,
           "isSigner": false
         },
@@ -292,7 +292,7 @@ const idl: Idl = {
           "isSigner": false
         },
         {
-          "name": "poolHuskyverse",
+          "name": "publicPoolHuskyverse",
           "isMut": true,
           "isSigner": false
         },
@@ -310,7 +310,7 @@ const idl: Idl = {
       ]
     },
     {
-      "name": "withdrawPoolUsdc",
+      "name": "withdrawPublicPoolUsdc",
       "accounts": [
         {
           "name": "idoAuthority",
@@ -338,7 +338,7 @@ const idl: Idl = {
           "isSigner": false
         },
         {
-          "name": "poolUsdc",
+          "name": "publicPoolUsdc",
           "isMut": true,
           "isSigner": false
         },
@@ -353,7 +353,7 @@ const idl: Idl = {
   ],
   "accounts": [
     {
-      "name": "IdoAccount",
+      "name": "idoAccount",
       "type": {
         "kind": "struct",
         "fields": [
@@ -389,11 +389,11 @@ const idl: Idl = {
             "type": "publicKey"
           },
           {
-            "name": "poolUsdc",
+            "name": "publicPoolUsdc",
             "type": "publicKey"
           },
           {
-            "name": "poolHuskyverse",
+            "name": "publicPoolHuskyverse",
             "type": "publicKey"
           },
           {
@@ -401,7 +401,7 @@ const idl: Idl = {
             "type": "u64"
           },
           {
-            "name": "idoTimes",
+            "name": "publicIdoTimes",
             "type": {
               "defined": "IdoTimes"
             }
@@ -410,7 +410,7 @@ const idl: Idl = {
       }
     },
     {
-      "name": "LinearDecreaseWithdrawAccount",
+      "name": "linearDecreaseWithdrawAccount",
       "type": {
         "kind": "struct",
         "fields": [
@@ -457,11 +457,11 @@ const idl: Idl = {
             "type": "u8"
           },
           {
-            "name": "poolHuskyverse",
+            "name": "publicPoolHuskyverse",
             "type": "u8"
           },
           {
-            "name": "poolUsdc",
+            "name": "publicPoolUsdc",
             "type": "u8"
           }
         ]
@@ -535,5 +535,6 @@ const idl: Idl = {
       "msg": "Exceed withdraw limit during linear decrease withdraw phase"
     }
   ]
-}
+};
+
 export default idl;

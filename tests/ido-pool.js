@@ -70,21 +70,21 @@ describe("ido-pool", () => {
 
   // These are all variables the client will need to create in order to
   // initialize the IDO pool
-  let idoTimes;
+  let publicIdoTimes;
 
   it("Initializes the IDO pool", async () => {
-    idoTimes = new IdoTimes();
+    publicIdoTimes = new IdoTimes();
     const nowBn = new anchor.BN(Date.now() / 1000);
-    idoTimes.startIdo = nowBn.add(new anchor.BN(5));
-    idoTimes.endDeposits = nowBn.add(new anchor.BN(12));
-    idoTimes.endIdo = nowBn.add(new anchor.BN(17));
-    idoTimes.endEscrow = nowBn.add(new anchor.BN(18));
+    publicIdoTimes.startIdo = nowBn.add(new anchor.BN(5));
+    publicIdoTimes.endDeposits = nowBn.add(new anchor.BN(12));
+    publicIdoTimes.endIdo = nowBn.add(new anchor.BN(17));
+    publicIdoTimes.endEscrow = nowBn.add(new anchor.BN(18));
 
-    console.log("ido starts: ", idoTimes.startIdo.toNumber() * 1000);
-    console.log("deposit ends: ", idoTimes.endDeposits.toNumber() * 1000);
-    console.log("ido ends: ", idoTimes.endIdo.toNumber() * 1000);
+    console.log("ido starts: ", publicIdoTimes.startIdo.toNumber() * 1000);
+    console.log("deposit ends: ", publicIdoTimes.endDeposits.toNumber() * 1000);
+    console.log("ido ends: ", publicIdoTimes.endIdo.toNumber() * 1000);
 
-    await idoPool.initializePool(deps, idoTimes, huskyverseIdoAmount);
+    await idoPool.initializePool(deps, publicIdoTimes, huskyverseIdoAmount);
 
     const idoAuthorityHuskyverseAccount = await getTokenAccount(
       provider,
@@ -103,8 +103,8 @@ describe("ido-pool", () => {
   it("Exchanges user USDC for redeemable tokens", async () => {
     const usdcMint = deps.usdcMint;
     // Wait until the IDO has opened.
-    if (Date.now() < idoTimes.startIdo.toNumber() * 1000) {
-      await sleep(idoTimes.startIdo.toNumber() * 1000 - Date.now() + 2000);
+    if (Date.now() < publicIdoTimes.startIdo.toNumber() * 1000) {
+      await sleep(publicIdoTimes.startIdo.toNumber() * 1000 - Date.now() + 2000);
     }
 
     // Prep USDC token account and amounts for testing
@@ -149,14 +149,14 @@ describe("ido-pool", () => {
       console.log("This is the error message:", err.toString());
     }
 
-    const [poolUsdc] = await idoPool.accounts.poolUsdc();
+    const [publicPoolUsdc] = await idoPool.accounts.publicPoolUsdc();
     const [userRedeemable] = await idoPool.accounts.userRedeemable(
       provider.wallet.publicKey
     );
 
     // usdc pool and user redeemable must match
-    poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
-    assert.ok(poolUsdcAccount.amount.eq(firstDeposit));
+    publicPoolUsdcAccount = await getTokenAccount(provider, publicPoolUsdc);
+    assert.ok(publicPoolUsdcAccount.amount.eq(firstDeposit));
 
     userRedeemableAccount = await getTokenAccount(provider, userRedeemable);
     assert.ok(userRedeemableAccount.amount.eq(firstDeposit));
@@ -169,7 +169,7 @@ describe("ido-pool", () => {
   it("Exchanges a second users USDC for redeemable tokens", async () => {
     const usdcMint = deps.usdcMint;
 
-    const [poolUsdc] = await idoPool.accounts.poolUsdc();
+    const [publicPoolUsdc] = await idoPool.accounts.publicPoolUsdc();
 
     secondUserKeypair = anchor.web3.Keypair.generate();
 
@@ -230,8 +230,8 @@ describe("ido-pool", () => {
     assert.ok(secondUserRedeemableAccount.amount.eq(secondDeposit));
 
     totalPoolUsdc = firstDeposit.add(secondDeposit);
-    poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
-    assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
+    publicPoolUsdcAccount = await getTokenAccount(provider, publicPoolUsdc);
+    assert.ok(publicPoolUsdcAccount.amount.eq(totalPoolUsdc));
   });
 
   let firstUserTotalWithdraw = new anchor.BN(2_000_000);
@@ -247,11 +247,11 @@ describe("ido-pool", () => {
       fullWithdrawal
     );
 
-    const [poolUsdc] = await idoPool.accounts.poolUsdc();
+    const [publicPoolUsdc] = await idoPool.accounts.publicPoolUsdc();
 
     totalPoolUsdc = totalPoolUsdc.sub(fullWithdrawal);
-    poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
-    assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
+    publicPoolUsdcAccount = await getTokenAccount(provider, publicPoolUsdc);
+    assert.ok(publicPoolUsdcAccount.amount.eq(totalPoolUsdc));
 
     currUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
 
@@ -279,11 +279,11 @@ describe("ido-pool", () => {
       secondWithdrawal
     );
 
-    const [poolUsdc] = await idoPool.accounts.poolUsdc();
+    const [publicPoolUsdc] = await idoPool.accounts.publicPoolUsdc();
 
     totalPoolUsdc = totalPoolUsdc.sub(secondWithdrawal);
-    poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
-    assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
+    publicPoolUsdcAccount = await getTokenAccount(provider, publicPoolUsdc);
+    assert.ok(publicPoolUsdcAccount.amount.eq(totalPoolUsdc));
 
     currUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
 
@@ -296,8 +296,8 @@ describe("ido-pool", () => {
     prevUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
 
     // Wait until the IDO has opened.
-    if (Date.now() < idoTimes.endDeposits.toNumber() * 1000) {
-      await sleep(idoTimes.endDeposits.toNumber() * 1000 - Date.now() + 2000);
+    if (Date.now() < publicIdoTimes.endDeposits.toNumber() * 1000) {
+      await sleep(publicIdoTimes.endDeposits.toNumber() * 1000 - Date.now() + 2000);
     }
 
     await idoPool.exchangeRedeemableForUsdc(
@@ -307,11 +307,11 @@ describe("ido-pool", () => {
       withdrawAmount
     );
 
-    const [poolUsdc] = await idoPool.accounts.poolUsdc();
+    const [publicPoolUsdc] = await idoPool.accounts.publicPoolUsdc();
 
     totalPoolUsdc = totalPoolUsdc.sub(withdrawAmount);
-    poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
-    assert.ok(poolUsdcAccount.amount.eq(totalPoolUsdc));
+    publicPoolUsdcAccount = await getTokenAccount(provider, publicPoolUsdc);
+    assert.ok(publicPoolUsdcAccount.amount.eq(totalPoolUsdc));
 
     currUserUsdcAmount = (await getTokenAccount(provider, userUsdc)).amount;
 
@@ -334,11 +334,11 @@ describe("ido-pool", () => {
   it("Exchanges user Redeemable tokens for huskyverse", async () => {
     const huskyverseMint = deps.huskyverseMint;
     // Wait until the IDO has ended.
-    if (Date.now() < idoTimes.endIdo.toNumber() * 1000) {
-      await sleep(idoTimes.endIdo.toNumber() * 1000 - Date.now() + 2000);
+    if (Date.now() < publicIdoTimes.endIdo.toNumber() * 1000) {
+      await sleep(publicIdoTimes.endIdo.toNumber() * 1000 - Date.now() + 2000);
     }
 
-    const [poolHuskyverse] = await idoPool.accounts.poolHuskyverse();
+    const [publicPoolHuskyverse] = await idoPool.accounts.publicPoolHuskyverse();
 
     let firstUserRedeemable = firstDeposit.sub(firstUserTotalWithdraw);
     // TODO we've been lazy here and not used an ATA as we did with USDC
@@ -355,16 +355,16 @@ describe("ido-pool", () => {
       firstUserRedeemable
     );
 
-    const poolHuskyverseAccount = await getTokenAccount(
+    const publicPoolHuskyverseAccount = await getTokenAccount(
       provider,
-      poolHuskyverse
+      publicPoolHuskyverse
     );
     const redeemedHuskyverse = firstUserRedeemable
       .mul(huskyverseIdoAmount)
       .div(totalPoolUsdc);
 
     const remainingHuskyverse = huskyverseIdoAmount.sub(redeemedHuskyverse);
-    assert.ok(poolHuskyverseAccount.amount.eq(remainingHuskyverse));
+    assert.ok(publicPoolHuskyverseAccount.amount.eq(remainingHuskyverse));
 
     const userHuskyverseAccount = await getTokenAccount(
       provider,
@@ -376,7 +376,7 @@ describe("ido-pool", () => {
   it("Exchanges second user's Redeemable tokens for huskyverse", async () => {
     const huskyverseMint = deps.huskyverseMint;
 
-    const [poolHuskyverse] = await idoPool.accounts.poolHuskyverse();
+    const [publicPoolHuskyverse] = await idoPool.accounts.publicPoolHuskyverse();
 
     const secondUserHuskyverse = await createTokenAccount(
       provider,
@@ -392,11 +392,11 @@ describe("ido-pool", () => {
       [secondUserKeypair]
     );
 
-    const poolHuskyverseAccount = await getTokenAccount(
+    const publicPoolHuskyverseAccount = await getTokenAccount(
       provider,
-      poolHuskyverse
+      publicPoolHuskyverse
     );
-    assert.ok(poolHuskyverseAccount.amount.eq(new anchor.BN(0)));
+    assert.ok(publicPoolHuskyverseAccount.amount.eq(new anchor.BN(0)));
   });
 
   it("Withdraws total USDC from pool account", async () => {
@@ -405,22 +405,22 @@ describe("ido-pool", () => {
     const idoAuthorityUsdc = deps.idoAuthorityUsdc;
 
     const [idoAccount] = await idoPool.accounts.ido();
-    const [poolUsdc] = await idoPool.accounts.poolUsdc();
+    const [publicPoolUsdc] = await idoPool.accounts.publicPoolUsdc();
 
-    await program.rpc.withdrawPoolUsdc({
+    await program.rpc.withdrawPublicPoolUsdc({
       accounts: {
         idoAuthority: provider.wallet.publicKey,
         idoAuthorityUsdc,
         idoAccount,
         usdcMint,
         huskyverseMint,
-        poolUsdc,
+        publicPoolUsdc,
         tokenProgram: TOKEN_PROGRAM_ID,
       },
     });
 
-    poolUsdcAccount = await getTokenAccount(provider, poolUsdc);
-    assert.ok(poolUsdcAccount.amount.eq(new anchor.BN(0)));
+    publicPoolUsdcAccount = await getTokenAccount(provider, publicPoolUsdc);
+    assert.ok(publicPoolUsdcAccount.amount.eq(new anchor.BN(0)));
     idoAuthorityUsdcAccount = await getTokenAccount(provider, idoAuthorityUsdc);
     assert.ok(idoAuthorityUsdcAccount.amount.eq(totalPoolUsdc));
   });

@@ -9,8 +9,8 @@ const { TOKEN_PROGRAM_ID } = require("@solana/spl-token");
 function PoolBumps() {
   this.idoAccount;
   this.redeemableMint;
-  this.poolHuskyverse;
-  this.poolUsdc;
+  this.publicPoolHuskyverse;
+  this.publicPoolUsdc;
 }
 
 module.exports = (provider, program, idoName) => {
@@ -25,15 +25,15 @@ module.exports = (provider, program, idoName) => {
         [Buffer.from(idoName), Buffer.from("redeemable_mint")],
         program.programId
       ),
-    poolHuskyverse: () =>
+    publicPoolHuskyverse: () =>
       anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from(idoName), Buffer.from("pool_huskyverse")],
+        [Buffer.from(idoName), Buffer.from("public_pool_huskyverse")],
         program.programId
       ),
 
-    poolUsdc: () =>
+    publicPoolUsdc: () =>
       anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from(idoName), Buffer.from("pool_usdc")],
+        [Buffer.from(idoName), Buffer.from("public_pool_usdc")],
         program.programId
       ),
 
@@ -61,7 +61,7 @@ module.exports = (provider, program, idoName) => {
   return {
     initializePool: async (
       { usdcMint, huskyverseMint, idoAuthorityHuskyverse } = _deps,
-      idoTimes,
+      publicIdoTimes,
       idoAmount
     ) => {
       let bumps = new PoolBumps();
@@ -73,18 +73,18 @@ module.exports = (provider, program, idoName) => {
         await accounts.redeemableMint();
       bumps.redeemableMint = redeemableMintBump;
 
-      const [poolHuskyverse, poolHuskyverseBump] =
-        await accounts.poolHuskyverse();
-      bumps.poolHuskyverse = poolHuskyverseBump;
+      const [publicPoolHuskyverse, publicPoolHuskyverseBump] =
+        await accounts.publicPoolHuskyverse();
+      bumps.publicPoolHuskyverse = publicPoolHuskyverseBump;
 
-      const [poolUsdc, poolUsdcBump] = await accounts.poolUsdc();
-      bumps.poolUsdc = poolUsdcBump;
+      const [publicPoolUsdc, publicPoolUsdcBump] = await accounts.publicPoolUsdc();
+      bumps.publicPoolUsdc = publicPoolUsdcBump;
 
       return await program.rpc.initializePool(
         idoName,
         bumps,
         idoAmount,
-        idoTimes,
+        publicIdoTimes,
         {
           accounts: {
             idoAuthority: provider.wallet.publicKey,
@@ -93,8 +93,8 @@ module.exports = (provider, program, idoName) => {
             huskyverseMint,
             usdcMint,
             redeemableMint,
-            poolHuskyverse,
-            poolUsdc,
+            publicPoolHuskyverse,
+            publicPoolUsdc,
             systemProgram: anchor.web3.SystemProgram.programId,
             tokenProgram: TOKEN_PROGRAM_ID,
             rent: anchor.web3.SYSVAR_RENT_PUBKEY,
@@ -112,7 +112,7 @@ module.exports = (provider, program, idoName) => {
       const [idoAccount] = await accounts.ido();
       const [redeemableMint] = await accounts.redeemableMint();
 
-      const [poolUsdc] = await accounts.poolUsdc();
+      const [publicPoolUsdc] = await accounts.publicPoolUsdc();
       const [userRedeemable] = await accounts.userRedeemable(userPubkey);
 
       let instructions = [];
@@ -149,7 +149,7 @@ module.exports = (provider, program, idoName) => {
           usdcMint,
           redeemableMint,
           huskyverseMint,
-          poolUsdc,
+          publicPoolUsdc,
           tokenProgram: TOKEN_PROGRAM_ID,
         },
         instructions,
@@ -165,7 +165,7 @@ module.exports = (provider, program, idoName) => {
       const isMaxAmount = withdrawalAmount === "MAX";
       const [idoAccount] = await accounts.ido();
       const [redeemableMint] = await accounts.redeemableMint();
-      const [poolUsdc] = await accounts.poolUsdc();
+      const [publicPoolUsdc] = await accounts.publicPoolUsdc();
       const [userRedeemable] = await accounts.userRedeemable(userPubKey);
       const [userWithdrawLinearDecrease] =
         await accounts.userWithdrawLinearDecrease(userPubKey);
@@ -182,7 +182,7 @@ module.exports = (provider, program, idoName) => {
             usdcMint,
             redeemableMint,
             huskyverseMint,
-            poolUsdc,
+            publicPoolUsdc,
             userWithdrawLinearDecrease,
             systemProgram: anchor.web3.SystemProgram.programId,
             tokenProgram: TOKEN_PROGRAM_ID,
@@ -199,7 +199,7 @@ module.exports = (provider, program, idoName) => {
       signers
     ) => {
       const [idoAccount] = await accounts.ido();
-      const [poolHuskyverse] = await accounts.poolHuskyverse();
+      const [publicPoolHuskyverse] = await accounts.publicPoolHuskyverse();
       const [redeemableMint] = await accounts.redeemableMint();
       const [userRedeemable] = await accounts.userRedeemable(userPubKey);
 
@@ -214,7 +214,7 @@ module.exports = (provider, program, idoName) => {
             idoAccount,
             huskyverseMint,
             redeemableMint,
-            poolHuskyverse,
+            publicPoolHuskyverse,
             tokenProgram: TOKEN_PROGRAM_ID,
           },
           signers,
